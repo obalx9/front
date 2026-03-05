@@ -1,69 +1,112 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
+import { api } from '../lib/api';
 
 interface OAuthButtonsProps {
   className?: string;
+  onSuccess?: (token: string, userId: string) => void;
 }
 
-const generateCodeVerifier = (): string => {
-  const array = new Uint8Array(64);
-  crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '')
-    .slice(0, 128);
-};
-
-const generateCodeChallenge = async (verifier: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return btoa(String.fromCharCode(...new Uint8Array(hash)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-};
-
-const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
 const VK_CLIENT_ID = import.meta.env.VITE_VK_CLIENT_ID;
+const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
 
-export default function OAuthButtons({ className = '' }: OAuthButtonsProps) {
-  const [loadingProvider, setLoadingProvider] = useState<'vk' | 'yandex' | null>(null);
+declare global {
+  interface Window {
+    VKIDSDK: any;
+  }
+}
+
+export default function OAuthButtons({ className = '', onSuccess }: OAuthButtonsProps) {
+  const [loadingYandex, setLoadingYandex] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [vkSdkReady, setVkSdkReady] = useState(false);
+  const vkContainerRef = useRef<HTMLDivElement>(null);
+  const vkWidgetRef = useRef<any>(null);
 
-  const handleVK = async () => {
-    setLoadingProvider('vk');
-    setError(null);
+  useEffect(() => {
+    if (!VK_CLIENT_ID) return;
+
+    const existingScript = document.querySelector('script[data-vkid-sdk]');
+    if (existingScript) {
+      if (window.VKIDSDK) {
+        setVkSdkReady(true);
+      } else {
+        existingScript.addEventListener('load', () => setVkSdkReady(true));
+      }
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js';
+    script.setAttribute('data-vkid-sdk', 'true');
+    script.onload = () => setVkSdkReady(true);
+    script.onerror = () => setError('Не удалось загрузить VK SDK');
+    document.head.appendChild(script);
+
+    return () => {
+      if (vkWidgetRef.current) {
+        try { vkWidgetRef.current.destroy?.(); } catch {}
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!vkSdkReady || !vkContainerRef.current || !VK_CLIENT_ID) return;
+    if (vkWidgetRef.current) return;
 
     try {
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      const stateBytes = new Uint8Array(16);
-      crypto.getRandomValues(stateBytes);
-      const state = btoa(String.fromCharCode(...stateBytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      const VKID = window.VKIDSDK;
 
-      const deviceIdBytes = new Uint8Array(16);
-      crypto.getRandomValues(deviceIdBytes);
-      deviceIdBytes[6] = (deviceIdBytes[6] & 0x0f) | 0x40;
-      deviceIdBytes[8] = (deviceIdBytes[8] & 0x3f) | 0x80;
-      const dHex = Array.from(deviceIdBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-      const deviceId = `${dHex.slice(0,8)}-${dHex.slice(8,12)}-${dHex.slice(12,16)}-${dHex.slice(16,20)}-${dHex.slice(20,32)}`;
+      VKID.Config.init({
+        app: parseInt(VK_CLIENT_ID),
+        redirectUrl: `${APP_URL}/auth/vk/callback`,
+        responseMode: VKID.ConfigResponseMode.Callback,
+        source: VKID.ConfigSource.LOWCODE,
+        scope: '',
+      });
 
-      sessionStorage.setItem(`pkce_verifier_${state}`, codeVerifier);
-      sessionStorage.setItem(`vk_device_id_${state}`, deviceId);
+      const oAuth = new VKID.OAuthList();
+      vkWidgetRef.current = oAuth;
 
-      const redirectUri = encodeURIComponent(`${APP_URL}/auth/vk/callback`);
-      const authUrl = `https://id.vk.ru/authorize?response_type=code&client_id=${VK_CLIENT_ID}&redirect_uri=${redirectUri}&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}&scope=vkid.personal_info&device_id=${deviceId}`;
-      window.location.href = authUrl;
+      oAuth
+        .render({
+          container: vkContainerRef.current,
+          oauthList: ['vkid'],
+        })
+        .on(VKID.WidgetEvents.ERROR, (err: any) => {
+          setError('Ошибка авторизации через ВКонтакте');
+        })
+        .on(VKID.OAuthListInternalEvents.LOGIN_SUCCESS, async (payload: any) => {
+          try {
+            setError(null);
+            const { code, device_id } = payload;
+
+            const exchangeResult = await VKID.Auth.exchangeCode(code, device_id);
+
+            const result = await api.post<{ user_id: string; token: string }>('/api/oauth/vk/exchange', {
+              access_token: exchangeResult.access_token,
+            });
+
+            if (result.token) {
+              api.setAuthToken(result.token);
+            }
+
+            if (onSuccess) {
+              onSuccess(result.token, result.user_id);
+            } else {
+              window.location.href = `/role-select?user_id=${result.user_id}`;
+            }
+          } catch (err: any) {
+            setError(err.message || 'Ошибка авторизации через ВКонтакте');
+          }
+        });
     } catch (err: any) {
-      setError(err.message || 'Ошибка запуска авторизации через ВКонтакте');
-      setLoadingProvider(null);
+      setError('Ошибка инициализации VK SDK');
     }
-  };
+  }, [vkSdkReady, onSuccess]);
 
   const handleYandex = () => {
-    setLoadingProvider('yandex');
+    setLoadingYandex(true);
     setError(null);
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     window.location.href = `${apiUrl}/api/oauth/yandex`;
@@ -76,35 +119,24 @@ export default function OAuthButtons({ className = '' }: OAuthButtonsProps) {
           {error}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={handleVK}
-          disabled={loadingProvider !== null}
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0077ff] hover:bg-[#0066dd] text-white rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium text-sm"
-        >
-          {loadingProvider === 'vk' ? (
-            <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin" />
-          ) : (
-            <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21.547 7h-3.29a.743.743 0 0 0-.655.392s-1.312 2.416-1.734 3.23C14.734 12.813 14 12.126 14 11.11V7.603A1.104 1.104 0 0 0 12.896 6.5h-2.474a1.982 1.982 0 0 0-1.75.813s1.255-.204 1.255 1.49c0 .42.022 1.626.04 2.64a.73.73 0 0 1-1.272.503 21.54 21.54 0 0 1-2.498-4.543.693.693 0 0 0-.63-.403h-2.99a.508.508 0 0 0-.48.685C3.005 10.175 6.918 18 11.38 18h1.878a.742.742 0 0 0 .742-.742v-1.135a.73.73 0 0 1 1.23-.53l2.247 2.112a1.09 1.09 0 0 0 .746.295h2.953c1.424 0 1.424-.988.647-1.753-.546-.538-2.518-2.617-2.518-2.617a1.02 1.02 0 0 1-.078-1.323c.637-.84 1.68-2.212 2.122-2.8.603-.804 1.697-2.507.197-2.507z" />
-            </svg>
-          )}
-          <span>ВКонтакте</span>
-        </button>
+
+      <div className="space-y-3">
+        {VK_CLIENT_ID && (
+          <div ref={vkContainerRef} className="vk-oauth-container" />
+        )}
 
         <button
           type="button"
           onClick={handleYandex}
-          disabled={loadingProvider !== null}
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-[#fc3f1d] hover:bg-[#e5381a] text-white rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium text-sm"
+          disabled={loadingYandex}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#fc3f1d] hover:bg-[#e5381a] text-white rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium text-sm"
         >
-          {loadingProvider === 'yandex' ? (
+          {loadingYandex ? (
             <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin" />
           ) : (
             <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center font-bold text-base leading-none">Я</span>
           )}
-          <span>Яндекс</span>
+          <span>Войти через Яндекс</span>
         </button>
       </div>
     </div>

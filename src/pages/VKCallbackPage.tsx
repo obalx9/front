@@ -27,43 +27,7 @@ export default function VKCallbackPage() {
       return;
     }
 
-    if (!code || !state) {
-      navigate('/login?error=' + encodeURIComponent('Отсутствуют параметры авторизации'));
-      return;
-    }
-
-    const storedVerifier = sessionStorage.getItem(`pkce_verifier_${state}`);
-    const storedDeviceId = sessionStorage.getItem(`vk_device_id_${state}`);
-    sessionStorage.removeItem(`pkce_verifier_${state}`);
-    sessionStorage.removeItem(`vk_device_id_${state}`);
-
-    if (!storedVerifier) {
-      navigate('/login?error=' + encodeURIComponent('Сессия истекла, попробуйте снова'));
-      return;
-    }
-
-    const exchangeCode = async () => {
-      try {
-        const result = await api.post<{ user_id: string; token: string }>('/api/oauth/vk/exchange', {
-          code,
-          code_verifier: storedVerifier,
-          device_id: storedDeviceId || deviceId || '',
-          state,
-          redirect_uri: `${window.location.origin}/auth/vk/callback`,
-        });
-
-        if (result.token) {
-          api.setAuthToken(result.token);
-        }
-
-        navigate(`/role-select?user_id=${result.user_id}`);
-      } catch (err: any) {
-        const message = err.message || 'Ошибка авторизации через ВКонтакте';
-        navigate('/login?error=' + encodeURIComponent(message));
-      }
-    };
-
-    exchangeCode();
+    navigate('/login');
   }, [navigate]);
 
   if (error) {
