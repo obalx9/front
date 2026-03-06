@@ -40,6 +40,8 @@ export default function VideoPlayer({
   const [isShortVideo, setIsShortVideo] = useState(false);
   const [watermarkPosition, setWatermarkPosition] = useState({ x: 20, y: 20 });
   const [showBlurredBg, setShowBlurredBg] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [blurredPoster, setBlurredPoster] = useState<string | null>(null);
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -228,13 +230,32 @@ export default function VideoPlayer({
     setProgress((video.currentTime / video.duration) * 100);
   };
 
+  const captureVideoPoster = (video: HTMLVideoElement) => {
+    try {
+      const canvas = canvasRef.current || document.createElement('canvas');
+      canvas.width = video.videoWidth || 320;
+      canvas.height = video.videoHeight || 240;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.3);
+        if (dataUrl && dataUrl !== 'data:,') {
+          setBlurredPoster(dataUrl);
+        }
+      }
+    } catch {
+      // cross-origin or other error, ignore
+    }
+  };
+
   const handleLoadedMetadata = () => {
     const video = videoRef.current;
     if (!video) return;
     setDuration(video.duration);
-    setIsShortVideo(video.duration <= 10);
+    setIsShortVideo(video.duration <= 20);
     setLoading(false);
     setShowBlurredBg(true);
+    captureVideoPoster(video);
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -359,7 +380,16 @@ export default function VideoPlayer({
       >
         {showBlurredBg && (
           <div
-            className="absolute inset-0 scale-110 z-0 bg-black"
+            className="absolute inset-0 scale-110 z-0"
+            style={{
+              backgroundColor: '#000',
+              ...(blurredPoster ? {
+                backgroundImage: `url(${blurredPoster})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'blur(40px) brightness(0.5)',
+              } : {}),
+            }}
           />
         )}
 
@@ -380,6 +410,11 @@ export default function VideoPlayer({
           src={mediaUrl}
           className="absolute inset-0 w-full h-full object-contain z-10"
           onLoadedMetadata={handleLoadedMetadata}
+          onLoadedData={() => {
+            if (!blurredPoster && videoRef.current) {
+              captureVideoPoster(videoRef.current);
+            }
+          }}
           onTimeUpdate={handleTimeUpdate}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
