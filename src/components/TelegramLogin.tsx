@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { api } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Send } from 'lucide-react';
 
 interface TelegramLoginProps {
   onSuccess?: () => void;
