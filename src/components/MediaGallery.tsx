@@ -30,6 +30,68 @@ function isVideoFile(item: MediaItem): boolean {
   return false;
 }
 
+function BlurredBackground({ mediaUrl, isVideo, isLoaded }: { mediaUrl: string; isVideo: boolean; isLoaded: boolean }) {
+  const [poster, setPoster] = useState<string | null>(null);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    if (!isVideo) return;
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.muted = true;
+    video.preload = 'auto';
+    video.playsInline = true;
+    video.src = mediaUrl;
+    videoElRef.current = video;
+
+    const capture = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 320;
+        canvas.height = video.videoHeight || 240;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.3);
+          if (dataUrl && dataUrl !== 'data:,') {
+            setPoster(dataUrl);
+          }
+        }
+      } catch {
+        // ignore
+      }
+      video.removeAttribute('src');
+      video.load();
+    };
+
+    video.addEventListener('loadeddata', capture, { once: true });
+    video.load();
+
+    return () => {
+      video.removeEventListener('loadeddata', capture);
+      video.removeAttribute('src');
+      video.load();
+    };
+  }, [mediaUrl, isVideo]);
+
+  const bgUrl = isVideo ? poster : mediaUrl;
+  if (!bgUrl) return null;
+
+  return (
+    <div
+      className="absolute inset-0 w-full h-full"
+      style={{
+        backgroundImage: `url(${bgUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: 'blur(20px)',
+        transform: 'scale(1.1)',
+        opacity: isVideo ? (poster ? 1 : 0) : (isLoaded ? 1 : 0),
+      }}
+    />
+  );
+}
+
 export default function MediaGallery({ items, courseId, onMediaClick, courseWatermark }: MediaGalleryProps) {
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [errorImages, setErrorImages] = useState<Set<string>>(new Set());
@@ -199,17 +261,11 @@ export default function MediaGallery({ items, courseId, onMediaClick, courseWate
                   </div>
                 )}
 
-                {isSingle && !isVideo && (
-                  <div
-                    className="absolute inset-0 w-full h-full"
-                    style={{
-                      backgroundImage: `url(${mediaUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      filter: 'blur(20px)',
-                      transform: 'scale(1.1)',
-                      opacity: isLoaded ? 1 : 0
-                    }}
+                {isSingle && (
+                  <BlurredBackground
+                    mediaUrl={mediaUrl}
+                    isVideo={isVideo}
+                    isLoaded={isLoaded}
                   />
                 )}
 
