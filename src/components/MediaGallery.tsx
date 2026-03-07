@@ -31,62 +31,35 @@ function isVideoFile(item: MediaItem): boolean {
 }
 
 function BlurredBackground({ mediaUrl, isVideo, isLoaded }: { mediaUrl: string; isVideo: boolean; isLoaded: boolean }) {
-  const [poster, setPoster] = useState<string | null>(null);
-  const videoElRef = useRef<HTMLVideoElement | null>(null);
+  if (isVideo) {
+    return (
+      <video
+        src={mediaUrl}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          filter: 'blur(20px)',
+          transform: 'scale(1.1)',
+        }}
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+    );
+  }
 
-  useEffect(() => {
-    if (!isVideo) return;
-    const video = document.createElement('video');
-    video.crossOrigin = 'anonymous';
-    video.muted = true;
-    video.preload = 'auto';
-    video.playsInline = true;
-    video.src = mediaUrl;
-    videoElRef.current = video;
-
-    const capture = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth || 320;
-        canvas.height = video.videoHeight || 240;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.3);
-          if (dataUrl && dataUrl !== 'data:,') {
-            setPoster(dataUrl);
-          }
-        }
-      } catch {
-        // ignore
-      }
-      video.removeAttribute('src');
-      video.load();
-    };
-
-    video.addEventListener('loadeddata', capture, { once: true });
-    video.load();
-
-    return () => {
-      video.removeEventListener('loadeddata', capture);
-      video.removeAttribute('src');
-      video.load();
-    };
-  }, [mediaUrl, isVideo]);
-
-  const bgUrl = isVideo ? poster : mediaUrl;
-  if (!bgUrl) return null;
+  if (!isLoaded) return null;
 
   return (
     <div
       className="absolute inset-0 w-full h-full"
       style={{
-        backgroundImage: `url(${bgUrl})`,
+        backgroundImage: `url(${mediaUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         filter: 'blur(20px)',
         transform: 'scale(1.1)',
-        opacity: isVideo ? (poster ? 1 : 0) : (isLoaded ? 1 : 0),
       }}
     />
   );
