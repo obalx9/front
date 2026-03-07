@@ -615,7 +615,7 @@ export default function CourseView() {
       {showPinnedSidebar && (
         <div className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-fade-in" onClick={() => setShowPinnedSidebar(false)}>
           <div
-            className="fixed right-0 top-0 bottom-0 w-[85vw] max-w-80 shadow-xl overflow-y-auto animate-slide-in-right"
+            className="fixed right-0 top-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] w-[85vw] max-w-80 shadow-xl overflow-y-auto animate-slide-in-right rounded-bl-2xl"
             style={{
               ...getBackgroundOverlay(
                 theme === 'dark'
