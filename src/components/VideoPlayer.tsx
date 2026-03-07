@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Loader, Play, Pause, Volume2, VolumeX, Maximize, Minimize, RotateCcw, RotateCw, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -40,8 +41,11 @@ export default function VideoPlayer({
   const [isShortVideo, setIsShortVideo] = useState(false);
   const [watermarkPosition, setWatermarkPosition] = useState({ x: 20, y: 20 });
   const [videoReady, setVideoReady] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
+  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const studentName = user?.first_name
     ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`
@@ -178,21 +182,37 @@ export default function VideoPlayer({
     setIsMuted(video.muted);
   };
 
+  const enterCssFullscreen = useCallback(() => {
+    setIsFullscreen(true);
+    setControlsVisible(true);
+    document.body.style.overflow = 'hidden';
+    window.scrollTo(0, 0);
+  }, []);
+
+  const exitCssFullscreen = useCallback(() => {
+    setIsFullscreen(false);
+    setControlsVisible(false);
+    document.body.style.overflow = '';
+  }, []);
+
+  const showControlsBriefly = useCallback(() => {
+    setControlsVisible(true);
+    if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
+    controlsTimerRef.current = setTimeout(() => {
+      setControlsVisible(false);
+    }, 3000);
+  }, []);
+
   const toggleFullscreen = async () => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (isIOS) {
+    if (isMobile) {
       if (!isFullscreen) {
-        setIsFullscreen(true);
-        document.body.style.overflow = 'hidden';
-        window.scrollTo(0, 0);
+        enterCssFullscreen();
       } else {
-        setIsFullscreen(false);
-        document.body.style.overflow = '';
+        exitCssFullscreen();
       }
       return;
     }
@@ -204,17 +224,12 @@ export default function VideoPlayer({
 
     try {
       if (!fsEl) {
-        if (isMobile) {
-          setIsFullscreen(true);
-          document.body.style.overflow = 'hidden';
-        } else {
-          if (container.requestFullscreen) {
-            await container.requestFullscreen();
-          } else if ((container as any).webkitRequestFullscreen) {
-            (container as any).webkitRequestFullscreen();
-          } else if ((container as any).mozRequestFullScreen) {
-            (container as any).mozRequestFullScreen();
-          }
+        if (container.requestFullscreen) {
+          await container.requestFullscreen();
+        } else if ((container as any).webkitRequestFullscreen) {
+          (container as any).webkitRequestFullscreen();
+        } else if ((container as any).mozRequestFullScreen) {
+          (container as any).mozRequestFullScreen();
         }
         setIsFullscreen(true);
       } else {
@@ -261,11 +276,6 @@ export default function VideoPlayer({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const exitCssFullscreen = useCallback(() => {
-    setIsFullscreen(false);
-    document.body.style.overflow = '';
-  }, []);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -380,22 +390,34 @@ export default function VideoPlayer({
     );
   }
 
-  return (
+  const isCssFullscreen = isFullscreen && isMobile;
+
+  const handleFullscreenTap = () => {
+    if (!isCssFullscreen) return;
+    showControlsBriefly();
+  };
+
+  const videoContent = (
     <div
       ref={containerRef}
       className={`relative w-full overflow-hidden group ${
-        isFullscreen ? 'fixed inset-0 z-[9999] rounded-none bg-black flex items-center justify-center' : 'rounded-t-lg'
+        isCssFullscreen
+          ? 'w-screen h-screen bg-black flex items-center justify-center'
+          : isFullscreen
+          ? 'fixed inset-0 z-[9999] rounded-none bg-black flex items-center justify-center'
+          : 'rounded-t-lg'
       }`}
       tabIndex={0}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
+      onClick={isCssFullscreen ? handleFullscreenTap : undefined}
     >
       <div
         className={`relative w-full bg-black overflow-hidden ${
           isFullscreen ? 'w-full h-full' : 'aspect-video'
         }`}
       >
-        {videoReady && (
+        {videoReady && !isCssFullscreen && (
           <video
             src={mediaUrl}
             className="absolute inset-0 w-full h-full object-cover scale-110 z-0"
@@ -426,6 +448,7 @@ export default function VideoPlayer({
           ref={videoRef}
           src={mediaUrl}
           className="absolute inset-0 w-full h-full object-contain z-10"
+          style={isCssFullscreen ? { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' } : undefined}
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
           onPlay={() => setIsPlaying(true)}
@@ -448,10 +471,14 @@ export default function VideoPlayer({
 
         <Watermark />
 
-        {isFullscreen && isMobile && (
+        {isCssFullscreen && (
           <button
-            onClick={exitCssFullscreen}
+            onClick={(e) => {
+              e.stopPropagation();
+              exitCssFullscreen();
+            }}
             className="absolute top-4 left-4 z-50 p-3 min-w-[48px] min-h-[48px] bg-black/60 hover:bg-black/80 text-white rounded-full transition-all touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
             aria-label="Exit fullscreen"
           >
             <X className="w-6 h-6" />
@@ -460,12 +487,14 @@ export default function VideoPlayer({
 
         <div
           className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 transition-opacity duration-300 z-30 pointer-events-none ${
-            shouldShowControls ? 'opacity-100' : 'opacity-0'
+            isCssFullscreen
+              ? (controlsVisible ? 'opacity-100' : 'opacity-0')
+              : (shouldShowControls ? 'opacity-100' : 'opacity-0')
           }`}
         >
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-6 pointer-events-auto">
             <button
-              onClick={skipBackward}
+              onClick={(e) => { e.stopPropagation(); skipBackward(); }}
               className={`w-14 h-14 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm transition-all ${
                 rewindAnimation ? 'scale-90' : 'scale-100'
               }`}
@@ -476,7 +505,7 @@ export default function VideoPlayer({
             </button>
 
             <button
-              onClick={togglePlayPause}
+              onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}
               className="w-16 h-16 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm transition-all"
             >
               {isPlaying ? (
@@ -487,7 +516,7 @@ export default function VideoPlayer({
             </button>
 
             <button
-              onClick={skipForward}
+              onClick={(e) => { e.stopPropagation(); skipForward(); }}
               className={`w-14 h-14 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm transition-all ${
                 forwardAnimation ? 'scale-90' : 'scale-100'
               }`}
@@ -501,7 +530,7 @@ export default function VideoPlayer({
           <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2 pointer-events-auto">
             <div
               className="w-full h-1 bg-white/30 rounded-full cursor-pointer group/progress"
-              onClick={handleProgressClick}
+              onClick={(e) => { e.stopPropagation(); handleProgressClick(e); }}
             >
               <div
                 className="h-full bg-teal-500 rounded-full transition-all group-hover/progress:bg-teal-400"
@@ -512,7 +541,7 @@ export default function VideoPlayer({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={togglePlayPause}
+                  onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}
                   className="p-1.5 hover:bg-white/10 rounded transition-colors"
                 >
                   {isPlaying ? (
@@ -523,7 +552,7 @@ export default function VideoPlayer({
                 </button>
 
                 <button
-                  onClick={toggleMute}
+                  onClick={(e) => { e.stopPropagation(); toggleMute(); }}
                   className="p-1.5 hover:bg-white/10 rounded transition-colors"
                   title="Mute (M)"
                 >
@@ -540,7 +569,7 @@ export default function VideoPlayer({
               </div>
 
               <button
-                onClick={toggleFullscreen}
+                onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
                 className="p-1.5 hover:bg-white/10 rounded transition-colors"
                 title="Fullscreen (F)"
               >
@@ -556,4 +585,30 @@ export default function VideoPlayer({
       </div>
     </div>
   );
+
+  if (isCssFullscreen) {
+    return (
+      <>
+        <div className="aspect-video bg-black rounded-t-lg" />
+        {createPortal(
+          <div
+            className="fixed inset-0 z-[99999] bg-black"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              zIndex: 99999,
+            }}
+          >
+            {videoContent}
+          </div>,
+          document.body
+        )}
+      </>
+    );
+  }
+
+  return videoContent;
 }
