@@ -426,8 +426,6 @@ export default function CourseFeed({
     }
   }, [filteredPosts]);
 
-  const pendingPinnedScrollId = useRef<string | null>(null);
-
   const doScrollToPostById = useCallback((postId: string) => {
     const postElement = postRefs.current.get(postId);
     const container = scrollContainerRef.current;
@@ -490,26 +488,33 @@ export default function CourseFeed({
 
   const scrollToPostById = useCallback(async (postId: string) => {
     const found = doScrollToPostById(postId);
-    if (!found) {
-      pendingPinnedScrollId.current = postId;
-      window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: true } }));
-      await loadPostsUntilFound(postId);
+    if (found) return;
+
+    window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: true } }));
+
+    await loadPostsUntilFound(postId);
+
+    pendingScrollPostId.current = postId;
+    pendingScrollDoneCallback.current = () => {
+      window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: false } }));
+    };
+
+    const el = postRefs.current.get(postId);
+    if (el) {
+      pendingScrollPostId.current = null;
+      pendingScrollDoneCallback.current = null;
+      requestAnimationFrame(() => {
+        const container = scrollContainerRef.current;
+        if (container) {
+          const containerRect = container.getBoundingClientRect();
+          const elementRect = el.getBoundingClientRect();
+          const offsetPosition = container.scrollTop + (elementRect.top - containerRect.top) - 8;
+          container.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'instant' as ScrollBehavior });
+        }
+        window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: false } }));
+      });
     }
   }, [doScrollToPostById, loadPostsUntilFound]);
-
-  useEffect(() => {
-    if (pendingPinnedScrollId.current && filteredPosts.length > 0 && !loading) {
-      const id = pendingPinnedScrollId.current;
-      const exists = filteredPosts.some(p => p.id === id);
-      if (exists) {
-        pendingPinnedScrollId.current = null;
-        setTimeout(() => {
-          doScrollToPostById(id);
-          window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId: id, loading: false } }));
-        }, 80);
-      }
-    }
-  }, [filteredPosts, loading, doScrollToPostById]);
 
   useEffect(() => {
     if (onScrollToPostReady) {
