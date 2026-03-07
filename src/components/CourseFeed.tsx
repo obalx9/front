@@ -492,27 +492,30 @@ export default function CourseFeed({
 
     window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: true } }));
 
-    await loadPostsUntilFound(postId);
-
     pendingScrollPostId.current = postId;
     pendingScrollDoneCallback.current = () => {
       window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: false } }));
     };
 
-    const el = postRefs.current.get(postId);
-    if (el) {
-      pendingScrollPostId.current = null;
-      pendingScrollDoneCallback.current = null;
-      requestAnimationFrame(() => {
-        const container = scrollContainerRef.current;
-        if (container) {
-          const containerRect = container.getBoundingClientRect();
-          const elementRect = el.getBoundingClientRect();
-          const offsetPosition = container.scrollTop + (elementRect.top - containerRect.top) - 8;
-          container.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'instant' as ScrollBehavior });
-        }
-        window.dispatchEvent(new CustomEvent('pinnedPostScrollLoading', { detail: { postId, loading: false } }));
-      });
+    await loadPostsUntilFound(postId);
+
+    if (pendingScrollPostId.current === postId) {
+      const el = postRefs.current.get(postId);
+      if (el) {
+        pendingScrollPostId.current = null;
+        const cb = pendingScrollDoneCallback.current;
+        pendingScrollDoneCallback.current = null;
+        requestAnimationFrame(() => {
+          const container = scrollContainerRef.current;
+          if (container) {
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = el.getBoundingClientRect();
+            const offsetPosition = container.scrollTop + (elementRect.top - containerRect.top) - 8;
+            container.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'instant' as ScrollBehavior });
+          }
+          cb?.();
+        });
+      }
     }
   }, [doScrollToPostById, loadPostsUntilFound]);
 
