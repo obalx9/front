@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import VideoPlayer from './VideoPlayer';
 import { mediaCache } from '../utils/mediaCache';
@@ -34,6 +34,8 @@ export default function MediaModal({
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < mediaItems.length - 1;
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
+  const fullscreenCooldownRef = useRef(false);
 
   const handlePrevious = useCallback(() => {
     if (hasPrevious) {
@@ -52,7 +54,12 @@ export default function MediaModal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        const fsEl =
+          document.fullscreenElement ||
+          (document as any).webkitFullscreenElement;
+        if (!fsEl && !fullscreenCooldownRef.current) {
+          onClose();
+        }
       } else if (e.key === 'ArrowLeft') {
         handlePrevious();
       } else if (e.key === 'ArrowRight') {
@@ -72,6 +79,69 @@ export default function MediaModal({
   useEffect(() => {
     if (!isOpen) return;
 
+    const handleBeginFullscreen = () => {
+      setIsVideoFullscreen(true);
+      fullscreenCooldownRef.current = true;
+    };
+
+    const handleEndFullscreen = () => {
+      setIsVideoFullscreen(false);
+      fullscreenCooldownRef.current = true;
+      setTimeout(() => {
+        fullscreenCooldownRef.current = false;
+      }, 600);
+    };
+
+    const handleFsChange = () => {
+      const fsEl =
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement;
+      if (fsEl) {
+        setIsVideoFullscreen(true);
+        fullscreenCooldownRef.current = true;
+      } else {
+        setIsVideoFullscreen(false);
+        fullscreenCooldownRef.current = true;
+        setTimeout(() => {
+          fullscreenCooldownRef.current = false;
+        }, 600);
+      }
+    };
+
+    const attachVideoListeners = () => {
+      const videos = document.querySelectorAll('video');
+      videos.forEach((v) => {
+        v.removeEventListener('webkitbeginfullscreen', handleBeginFullscreen);
+        v.removeEventListener('webkitendfullscreen', handleEndFullscreen);
+        v.addEventListener('webkitbeginfullscreen', handleBeginFullscreen);
+        v.addEventListener('webkitendfullscreen', handleEndFullscreen);
+      });
+    };
+
+    attachVideoListeners();
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+
+    const observer = new MutationObserver(() => {
+      attachVideoListeners();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      const videos = document.querySelectorAll('video');
+      videos.forEach((v) => {
+        v.removeEventListener('webkitbeginfullscreen', handleBeginFullscreen);
+        v.removeEventListener('webkitendfullscreen', handleEndFullscreen);
+      });
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+      observer.disconnect();
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
     const preloadMedia = (index: number) => {
       if (index >= 0 && index < mediaItems.length) {
         const media = mediaItems[index];
@@ -85,13 +155,18 @@ export default function MediaModal({
   }, [isOpen, currentIndex, mediaItems, getSecureMediaUrl]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isVideoFullscreen || fullscreenCooldownRef.current) return;
     touchStartRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
     };
-  }, []);
+  }, [isVideoFullscreen]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (isVideoFullscreen || fullscreenCooldownRef.current) {
+      touchStartRef.current = null;
+      return;
+    }
     if (!touchStartRef.current) return;
 
     const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
@@ -110,7 +185,7 @@ export default function MediaModal({
     }
 
     touchStartRef.current = null;
-  }, [onClose, handlePrevious, handleNext]);
+  }, [onClose, handlePrevious, handleNext, isVideoFullscreen]);
 
   if (!isOpen || !currentMedia) return null;
 
@@ -151,7 +226,11 @@ export default function MediaModal({
       <div className="absolute inset-0 bg-black/60" />
 
       <button
-        onClick={onClose}
+        onClick={() => {
+          if (!isVideoFullscreen && !fullscreenCooldownRef.current) {
+            onClose();
+          }
+        }}
         className="absolute top-4 right-4 z-50 p-3 min-w-[48px] min-h-[48px] bg-gray-900 bg-opacity-70 hover:bg-opacity-90 text-white rounded-full transition-all touch-manipulation"
         aria-label="Close"
       >
@@ -207,6 +286,7 @@ export default function MediaModal({
       <div className="relative w-full h-full flex items-center justify-center p-2 sm:p-4 md:p-8 z-10">
         <div className="max-w-7xl max-h-full w-full">
           <VideoPlayer
+            key={`modal-video-${currentMedia.id}`}
             mediaUrl={mediaUrl}
             mediaType={isAnimation ? 'animation' : isVideo ? 'video' : 'image'}
             courseWatermark={courseWatermark}
