@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from 'react';
-import { Loader, Play, Pause, Volume2, VolumeX, Maximize, Minimize, RotateCcw, RotateCw } from 'lucide-react';
+import { useRef, useEffect, useState, useCallback } from 'react';
+import { Loader, Play, Pause, Volume2, VolumeX, Maximize, Minimize, RotateCcw, RotateCw, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface VideoPlayerProps {
@@ -126,49 +126,16 @@ export default function VideoPlayer({
       setIsFullscreen(!!fsEl);
     };
 
-    const handleWebkitEndFullscreen = () => {
-      setIsFullscreen(false);
-      const v = videoRef.current;
-      if (!v) return;
-      const savedTime = v.currentTime;
-      const wasPlaying = !v.paused;
-      const src = v.src;
-
-      setTimeout(() => {
-        if (!v || !v.parentElement) return;
-        v.removeAttribute('style');
-        v.className = 'absolute inset-0 w-full h-full object-contain z-10';
-
-        if (!v.src || v.readyState === 0) {
-          v.src = src;
-          v.load();
-        }
-
-        v.currentTime = savedTime;
-        if (wasPlaying) {
-          v.play().catch(() => {});
-        }
-      }, 150);
-    };
-
-    const handleWebkitBeginFullscreen = () => {
-      setIsFullscreen(true);
-    };
-
     document.addEventListener('keydown', handleKeyPress);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-    video.addEventListener('webkitendfullscreen', handleWebkitEndFullscreen);
-    video.addEventListener('webkitbeginfullscreen', handleWebkitBeginFullscreen);
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
-      video.removeEventListener('webkitendfullscreen', handleWebkitEndFullscreen);
-      video.removeEventListener('webkitbeginfullscreen', handleWebkitBeginFullscreen);
     };
   }, [mediaType]);
 
@@ -216,6 +183,20 @@ export default function VideoPlayer({
     const container = containerRef.current;
     if (!video || !container) return;
 
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isIOS) {
+      if (!isFullscreen) {
+        setIsFullscreen(true);
+        document.body.style.overflow = 'hidden';
+        window.scrollTo(0, 0);
+      } else {
+        setIsFullscreen(false);
+        document.body.style.overflow = '';
+      }
+      return;
+    }
+
     const fsEl =
       document.fullscreenElement ||
       (document as any).webkitFullscreenElement ||
@@ -224,11 +205,8 @@ export default function VideoPlayer({
     try {
       if (!fsEl) {
         if (isMobile) {
-          if ((video as any).webkitEnterFullscreen) {
-            (video as any).webkitEnterFullscreen();
-          } else if (video.requestFullscreen) {
-            await video.requestFullscreen();
-          }
+          setIsFullscreen(true);
+          document.body.style.overflow = 'hidden';
         } else {
           if (container.requestFullscreen) {
             await container.requestFullscreen();
@@ -283,6 +261,31 @@ export default function VideoPlayer({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const exitCssFullscreen = useCallback(() => {
+    setIsFullscreen(false);
+    document.body.style.overflow = '';
+  }, []);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const fsEl =
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement;
+    if (fsEl) return;
+
+    const handlePopState = () => {
+      exitCssFullscreen();
+    };
+
+    window.history.pushState({ cssFullscreen: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isFullscreen, exitCssFullscreen]);
 
   const isAutoPlaying = autoPlay && isShortVideo && isActive;
   const shouldShowControls = isAutoPlaying ? showControls : (showControls || !isPlaying);
@@ -444,6 +447,16 @@ export default function VideoPlayer({
         />
 
         <Watermark />
+
+        {isFullscreen && isMobile && (
+          <button
+            onClick={exitCssFullscreen}
+            className="absolute top-4 left-4 z-50 p-3 min-w-[48px] min-h-[48px] bg-black/60 hover:bg-black/80 text-white rounded-full transition-all touch-manipulation"
+            aria-label="Exit fullscreen"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        )}
 
         <div
           className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 transition-opacity duration-300 z-30 pointer-events-none ${
