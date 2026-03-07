@@ -126,16 +126,49 @@ export default function VideoPlayer({
       setIsFullscreen(!!fsEl);
     };
 
+    const handleWebkitEndFullscreen = () => {
+      setIsFullscreen(false);
+      const v = videoRef.current;
+      if (!v) return;
+      const savedTime = v.currentTime;
+      const wasPlaying = !v.paused;
+      const src = v.src;
+
+      setTimeout(() => {
+        if (!v || !v.parentElement) return;
+        v.removeAttribute('style');
+        v.className = 'absolute inset-0 w-full h-full object-contain z-10';
+
+        if (!v.src || v.readyState === 0) {
+          v.src = src;
+          v.load();
+        }
+
+        v.currentTime = savedTime;
+        if (wasPlaying) {
+          v.play().catch(() => {});
+        }
+      }, 150);
+    };
+
+    const handleWebkitBeginFullscreen = () => {
+      setIsFullscreen(true);
+    };
+
     document.addEventListener('keydown', handleKeyPress);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    video.addEventListener('webkitendfullscreen', handleWebkitEndFullscreen);
+    video.addEventListener('webkitbeginfullscreen', handleWebkitBeginFullscreen);
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      video.removeEventListener('webkitendfullscreen', handleWebkitEndFullscreen);
+      video.removeEventListener('webkitbeginfullscreen', handleWebkitBeginFullscreen);
     };
   }, [mediaType]);
 
