@@ -9,8 +9,10 @@ import { getBackgroundOverlay, getGlassEffect, getGlassEffectDark } from '../uti
 
 interface PinnedPost {
   id: string;
+  post_id: string;
   text_content: string | null;
   created_at: string;
+  post_created_at?: string;
 }
 
 interface PinnedPostsSidebarProps {
@@ -125,13 +127,14 @@ export default function PinnedPostsSidebar({ courseId, refreshKey, onPostClick, 
       </div>
       <div className="relative z-10 overflow-y-auto p-4 space-y-2">
         {pinnedPosts.map((post) => {
-          const isLoading = loadingPostId === post.id;
+          const actualPostId = post.post_id || post.id;
+          const isLoading = loadingPostId === actualPostId;
           return (
             <button
-              key={post.id}
+              key={actualPostId}
               disabled={loadingPostId !== null}
               onClick={() => {
-                if (!loadingPostId) onPostClick?.(post.id);
+                if (!loadingPostId) onPostClick?.(actualPostId);
               }}
               className={`w-full text-left p-3 rounded-lg transition-all ${
                 loadingPostId !== null
@@ -160,7 +163,7 @@ export default function PinnedPostsSidebar({ courseId, refreshKey, onPostClick, 
                     {isLoading ? (
                       <span className="text-teal-500">загрузка...</span>
                     ) : (
-                      new Date(post.created_at).toLocaleDateString()
+                      new Date(post.post_created_at || post.created_at).toLocaleDateString()
                     )}
                   </p>
                 </div>
