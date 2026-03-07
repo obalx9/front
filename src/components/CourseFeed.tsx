@@ -1388,7 +1388,7 @@ export default function CourseFeed({
                     const isVideoItem = singleItem.media_type === 'video' || singleItem.media_type === 'animation' || !!(singleItem.file_name && /\.(mp4|mov|avi|mkv|webm|m4v|3gp|flv|wmv)$/i.test(singleItem.file_name));
                     return (
                       <>
-                      {isVideoItem && !singleItem.telegram_thumbnail_file_id ? (
+                      {isVideoItem ? (
                         <div className="relative w-full overflow-hidden">
                           <VideoPostWrapper
                             videoUrl={getSecureMediaUrl(singleItem.storage_path || singleItem.telegram_file_id || '')}
