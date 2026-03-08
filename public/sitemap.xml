@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://go.keykurs.ru/</loc>
+    <loc>https://keykurs.ru/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/blog</loc>
+    <loc>https://keykurs.ru/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/blog/kak-sozdat-onlayn-kurs-iz-telegram</loc>
+    <loc>https://keykurs.ru/blog/kak-sozdat-onlayn-kurs-iz-telegram</loc>
     <lastmod>2025-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/blog/telegram-kak-instrument-onlayn-obucheniya</loc>
+    <loc>https://keykurs.ru/blog/telegram-kak-instrument-onlayn-obucheniya</loc>
     <lastmod>2025-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/blog/kak-uvelichit-dohody-eksperta-cherez-onlayn-kursy</loc>
+    <loc>https://keykurs.ru/blog/kak-uvelichit-dohody-eksperta-cherez-onlayn-kursy</loc>
     <lastmod>2025-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/blog/sravnenie-platform-onlayn-kursov</loc>
+    <loc>https://keykurs.ru/blog/sravnenie-platform-onlayn-kursov</loc>
     <lastmod>2025-01-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/blog/kak-uderzhivat-studentov-na-kurse</loc>
+    <loc>https://keykurs.ru/blog/kak-uderzhivat-studentov-na-kurse</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/docs</loc>
+    <loc>https://keykurs.ru/docs</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://go.keykurs.ru/login</loc>
+    <loc>https://keykurs.ru/login</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
