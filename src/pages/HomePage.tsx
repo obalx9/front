@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSEO } from '../hooks/useSEO';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -100,6 +101,13 @@ export default function HomePage() {
   const { user } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [featuredCourses, setFeaturedCourses] = useState<FeaturedCourse[]>(FALLBACK_COURSES);
+
+  useSEO({
+    title: 'КейКурс — платформа онлайн-курсов из Telegram',
+    description: 'Превратите Telegram-канал в платформу онлайн-курсов. Студенты листают материалы как ленту — видео, фото, тексты. Контент из Telegram попадает в курс автоматически. Первый курс бесплатно.',
+    keywords: 'онлайн курсы, telegram курсы, создать курс онлайн, платформа обучения, кейкурс',
+    canonical: '/',
+  });
 
   useEffect(() => {
     setIsVisible(true);

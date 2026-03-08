@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/
+
+Disallow: /dashboard
+Disallow: /student
+Disallow: /seller
+Disallow: /admin
+Disallow: /course/
+Disallow: /role-select
+Disallow: /register-seller
+Disallow: /telegram-callback
+Disallow: /auth/
+Disallow: /deploy
+Disallow: /internal-docs
+
+Sitemap: https://go.keykurs.ru/sitemap.xml
