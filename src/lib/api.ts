@@ -374,6 +374,38 @@ class ApiClient {
   async updateSellerPremium(sellerId: string, data: { premium_active: boolean; premium_expires_at: string | null }): Promise<any> {
     return this.patch(`/api/admin/sellers/${sellerId}/premium`, data);
   }
+
+  async getSiteContacts(): Promise<any[]> {
+    return this.get('/api/contacts', { skipAuth: true });
+  }
+
+  async createSiteContact(data: any): Promise<any> {
+    return this.post('/api/contacts', data);
+  }
+
+  async updateSiteContact(id: string, data: any): Promise<any> {
+    return this.put(`/api/contacts/${id}`, data);
+  }
+
+  async deleteSiteContact(id: string): Promise<{ success: boolean }> {
+    return this.delete(`/api/contacts/${id}`);
+  }
+
+  async getSiteMetrics(): Promise<any[]> {
+    return this.get('/api/metrics', { skipAuth: true });
+  }
+
+  async createSiteMetric(data: any): Promise<any> {
+    return this.post('/api/metrics', data);
+  }
+
+  async updateSiteMetric(id: string, data: any): Promise<any> {
+    return this.put(`/api/metrics/${id}`, data);
+  }
+
+  async deleteSiteMetric(id: string): Promise<{ success: boolean }> {
+    return this.delete(`/api/metrics/${id}`);
+  }
 }
 
 export const api = new ApiClient(API_URL);

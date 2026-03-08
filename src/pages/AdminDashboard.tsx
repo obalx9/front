@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
-import { Shield, Users, Store, BookOpen, LogOut, Check, X, Crown, Megaphone, Star, Bot, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { Shield, Users, Store, BookOpen, LogOut, Check, X, Crown, Megaphone, Star, Bot, Save, AlertCircle, CheckCircle, Mail } from 'lucide-react';
 import LanguageSelector from '../components/LanguageSelector';
 import ThemeToggle from '../components/ThemeToggle';
 import PremiumTab from './admin/PremiumTab';
 import AdsTab from './admin/AdsTab';
 import FeaturedTab from './admin/FeaturedTab';
+import ContactsMetricsTab from './admin/ContactsMetricsTab';
 
-type TabId = 'overview' | 'premium' | 'ads' | 'featured';
+type TabId = 'overview' | 'premium' | 'ads' | 'featured' | 'contacts';
 
 interface PendingSeller {
   id: string;
@@ -36,6 +37,7 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'premium', label: 'Премиум', icon: Crown },
   { id: 'ads', label: 'Реклама', icon: Megaphone },
   { id: 'featured', label: 'Рекомендации', icon: Star },
+  { id: 'contacts', label: 'Контакты', icon: Mail },
 ];
 
 export default function AdminDashboard() {
@@ -401,6 +403,7 @@ export default function AdminDashboard() {
         {activeTab === 'premium' && <PremiumTab />}
         {activeTab === 'ads' && <AdsTab />}
         {activeTab === 'featured' && <FeaturedTab />}
+        {activeTab === 'contacts' && <ContactsMetricsTab />}
       </main>
     </div>
   );

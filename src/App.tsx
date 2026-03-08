@@ -19,6 +19,7 @@ import DeployPage from './pages/DeployPage';
 import VKCallbackPage from './pages/VKCallbackPage';
 import YandexCallbackPage from './pages/YandexCallbackPage';
 import TelegramCallbackPage from './pages/TelegramCallbackPage';
+import ContactsPage from './pages/ContactsPage';
 import BlogListPage from './pages/blog/BlogListPage';
 import BlogPostPage from './pages/blog/BlogPostPage';
 import BottomNavigation from './components/BottomNavigation';
@@ -26,7 +27,7 @@ import BottomNavigation from './components/BottomNavigation';
 function AppContent() {
   const { user } = useAuth();
   const location = useLocation();
-  const isPublicPage = location.pathname === '/login' || location.pathname === '/role-select' || location.pathname === '/register-seller' || location.pathname === '/' || location.pathname === '/docs' || location.pathname === '/internal-docs' || location.pathname === '/deploy' || location.pathname === '/telegram-callback' || location.pathname === '/auth/vk/callback' || location.pathname === '/auth/yandex/callback' || location.pathname.startsWith('/blog');
+  const isPublicPage = location.pathname === '/login' || location.pathname === '/role-select' || location.pathname === '/register-seller' || location.pathname === '/' || location.pathname === '/contacts' || location.pathname === '/docs' || location.pathname === '/internal-docs' || location.pathname === '/deploy' || location.pathname === '/telegram-callback' || location.pathname === '/auth/vk/callback' || location.pathname === '/auth/yandex/callback' || location.pathname.startsWith('/blog');
   const needsBottomPadding = user && !isPublicPage;
 
   return (
@@ -50,6 +51,7 @@ function AppContent() {
         <Route path="/deploy" element={<DeployPage />} />
         <Route path="/auth/vk/callback" element={<VKCallbackPage />} />
         <Route path="/auth/yandex/callback" element={<YandexCallbackPage />} />
+        <Route path="/contacts" element={<ContactsPage />} />
         <Route path="/blog" element={<BlogListPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
       </Routes>

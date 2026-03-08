@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSEO } from '../hooks/useSEO';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -38,6 +38,33 @@ interface FeaturedCourse {
   image_url: string;
   order_index: number;
 }
+
+interface SiteMetric {
+  id: string;
+  label: string;
+  value: string;
+  icon: string;
+  order_index: number;
+}
+
+const FALLBACK_METRICS: SiteMetric[] = [
+  { id: '1', label: '', value: '500+', icon: 'BookOpen', order_index: 0 },
+  { id: '2', label: '', value: '10,000+', icon: 'Users', order_index: 1 },
+  { id: '3', label: '', value: '150+', icon: 'Award', order_index: 2 },
+];
+
+const METRIC_ICON_MAP: Record<string, React.ElementType> = {
+  BookOpen,
+  Users,
+  Award,
+};
+
+const METRIC_COLORS = [
+  { bg: 'bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20', icon: 'text-teal-600 dark:text-teal-400' },
+  { bg: 'bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20', icon: 'text-cyan-600 dark:text-cyan-400' },
+  { bg: 'bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20', icon: 'text-blue-600 dark:text-blue-400' },
+  { bg: 'bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20', icon: 'text-green-600 dark:text-green-400' },
+];
 
 const FALLBACK_COURSES: FeaturedCourse[] = [
   {
@@ -101,6 +128,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [featuredCourses, setFeaturedCourses] = useState<FeaturedCourse[]>(FALLBACK_COURSES);
+  const [siteMetrics, setSiteMetrics] = useState<SiteMetric[]>([]);
 
   useSEO({
     title: 'КейКурс — платформа онлайн-курсов из Telegram',
@@ -112,6 +140,7 @@ export default function HomePage() {
   useEffect(() => {
     setIsVisible(true);
     loadFeaturedCourses();
+    loadMetrics();
   }, []);
 
   const loadFeaturedCourses = async () => {
@@ -124,6 +153,19 @@ export default function HomePage() {
       console.error('Error loading featured courses:', error);
     }
   };
+
+  const loadMetrics = async () => {
+    try {
+      const data = await api.getSiteMetrics();
+      if (data && data.length > 0) {
+        setSiteMetrics(data);
+      }
+    } catch (error) {
+      console.error('Error loading metrics:', error);
+    }
+  };
+
+  const displayMetrics = siteMetrics.length > 0 ? siteMetrics : FALLBACK_METRICS;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -147,6 +189,9 @@ export default function HomePage() {
               <a href="#testimonials" className="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
                 {t('testimonialsTitle')}
               </a>
+              <Link to="/contacts" className="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                {t('footerContact')}
+              </Link>
             </nav>
 
             <div className="flex items-center space-x-4">
@@ -220,29 +265,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-20 bg-white dark:bg-gray-800">
+        <section id="stats" className="py-20 bg-white dark:bg-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 {t('statsTitle')}
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center p-8 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-2xl shadow-lg transform hover:scale-105 transition-all">
-                <BookOpen className="w-16 h-16 mx-auto mb-4 text-teal-600 dark:text-teal-400" />
-                <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">500+</div>
-                <div className="text-xl text-gray-600 dark:text-gray-300">{t('totalCourses')}</div>
-              </div>
-              <div className="text-center p-8 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-2xl shadow-lg transform hover:scale-105 transition-all">
-                <Users className="w-16 h-16 mx-auto mb-4 text-cyan-600 dark:text-cyan-400" />
-                <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">10,000+</div>
-                <div className="text-xl text-gray-600 dark:text-gray-300">{t('totalStudents')}</div>
-              </div>
-              <div className="text-center p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg transform hover:scale-105 transition-all">
-                <Award className="w-16 h-16 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-                <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">150+</div>
-                <div className="text-xl text-gray-600 dark:text-gray-300">{t('totalInstructors')}</div>
-              </div>
+            <div className={`grid grid-cols-1 gap-8 ${displayMetrics.length <= 2 ? 'md:grid-cols-2 max-w-2xl mx-auto' : displayMetrics.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
+              {displayMetrics.map((metric, index) => {
+                const colors = METRIC_COLORS[index % METRIC_COLORS.length];
+                const Icon = METRIC_ICON_MAP[metric.icon] || BookOpen;
+                return (
+                  <div key={metric.id} className={`text-center p-8 ${colors.bg} rounded-2xl shadow-lg transform hover:scale-105 transition-all`}>
+                    <Icon className={`w-16 h-16 mx-auto mb-4 ${colors.icon}`} />
+                    <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">{metric.value}</div>
+                    {metric.label && <div className="text-xl text-gray-600 dark:text-gray-300">{metric.label}</div>}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -609,9 +650,9 @@ export default function HomePage() {
                 <h3 className="text-white font-semibold mb-4">{t('footerContact')}</h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="#" className="hover:text-teal-400 transition-colors">
+                    <Link to="/contacts" className="hover:text-teal-400 transition-colors">
                       {t('footerContact')}
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
