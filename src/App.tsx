@@ -23,8 +23,10 @@ import ContactsPage from './pages/ContactsPage';
 import BlogListPage from './pages/blog/BlogListPage';
 import BlogPostPage from './pages/blog/BlogPostPage';
 import BottomNavigation from './components/BottomNavigation';
+import { useSiteScripts } from './hooks/useSiteScripts';
 
 function AppContent() {
+  useSiteScripts();
   const { user } = useAuth();
   const location = useLocation();
   const isPublicPage = location.pathname === '/login' || location.pathname === '/role-select' || location.pathname === '/register-seller' || location.pathname === '/' || location.pathname === '/contacts' || location.pathname === '/docs' || location.pathname === '/internal-docs' || location.pathname === '/deploy' || location.pathname === '/telegram-callback' || location.pathname === '/auth/vk/callback' || location.pathname === '/auth/yandex/callback' || location.pathname.startsWith('/blog');
