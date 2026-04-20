@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
-import { Store, Plus, Users, BookOpen, LogOut, Pencil as Edit, Trash2, Eye, Send, MoreVertical, GraduationCap, FileText, X, BookMarked } from 'lucide-react';
+import { Store, Plus, Users, BookOpen, LogOut, Pencil as Edit, Trash2, Eye, Send, MoreVertical, GraduationCap, FileText, X, BookMarked, TrendingUp } from 'lucide-react';
 import KeyKursLogo from '../components/KeyKursLogo';
 import LanguageSelector from '../components/LanguageSelector';
 import ThemeToggle from '../components/ThemeToggle';
 import TelegramBotConfig from '../components/TelegramBotConfig';
 import ConfirmDialog from '../components/ConfirmDialog';
+import SellerSalesTab from './seller/SellerSalesTab';
 
 interface Course {
   id: string;
@@ -42,6 +43,7 @@ export default function SellerDashboard() {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; courseId: string | null }>({ open: false, courseId: null });
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+  const [activeTab, setActiveTab] = useState<'courses' | 'sales'>('courses');
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -233,8 +235,38 @@ export default function SellerDashboard() {
         </div>
       </header>
 
+      {/* Tab bar */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1">
+          <button
+            onClick={() => setActiveTab('courses')}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'courses'
+                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            Мои курсы
+          </button>
+          <button
+            onClick={() => setActiveTab('sales')}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'sales'
+                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            Продажи
+          </button>
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {showWelcomeBanner && (
+        {activeTab === 'sales' && <SellerSalesTab />}
+
+        {activeTab === 'courses' && showWelcomeBanner && (
           <div className="mb-6 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4 flex items-start gap-4">
             <div className="flex-shrink-0 w-10 h-10 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center">
               <BookMarked className="w-5 h-5 text-teal-600 dark:text-teal-400" />
@@ -263,6 +295,7 @@ export default function SellerDashboard() {
           </div>
         )}
 
+        {activeTab === 'courses' && <div>
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('myCourses')}</h2>
           <button
@@ -499,6 +532,7 @@ export default function SellerDashboard() {
             ))}
           </div>
         )}
+        </div>}
       </main>
 
       {showCreateModal && (
