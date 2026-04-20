@@ -247,7 +247,7 @@ export default function CourseView() {
 
       const courseOwner = courseData.is_owner === true;
       const isStudent = courseData.is_enrolled === true;
-      const isAdmin = user?.roles.includes('admin');
+      const isAdmin = !!user?.is_admin;
 
       if (!courseOwner && !isStudent && !isAdmin) {
         alert(t('noAccessToCourse'));
