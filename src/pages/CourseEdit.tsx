@@ -70,7 +70,7 @@ export default function CourseEdit() {
   const [copiedPayLink, setCopiedPayLink] = useState(false);
 
   useEffect(() => {
-    if (!loading && (!user || !user.roles.includes('seller'))) {
+    if (!loading && (!user || (!user.roles.includes('seller') && !user.roles.includes('admin')))) {
       navigate('/login');
       return;
     }

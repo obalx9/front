@@ -10,7 +10,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import TelegramBotConfig from '../components/TelegramBotConfig';
 import ConfirmDialog from '../components/ConfirmDialog';
 import SellerSalesTab from './seller/SellerSalesTab';
-import RichTextEditor from '../components/RichTextEditor';
+import RichTextEditor, { RichTextDisplay, isHtmlContent } from '../components/RichTextEditor';
 
 interface Course {
   id: string;
@@ -477,7 +477,11 @@ export default function SellerDashboard() {
                             {course.is_published ? t('published') : t('draft')}
                           </span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">{course.description}</p>
+                        <div className="text-gray-600 dark:text-gray-400 mb-4">
+                          {isHtmlContent(course.description)
+                            ? <RichTextDisplay html={course.description} />
+                            : course.description}
+                        </div>
                         <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />

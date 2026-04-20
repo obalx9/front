@@ -6,6 +6,7 @@ import { api } from '../lib/api';
 import { BookOpen, LogOut, Store, Copy, Check, User, Eye, EyeOff } from 'lucide-react';
 import KeyKursLogo from '../components/KeyKursLogo';
 import LanguageSelector from '../components/LanguageSelector';
+import { RichTextDisplay, isHtmlContent } from '../components/RichTextEditor';
 import ThemeToggle from '../components/ThemeToggle';
 
 interface EnrolledCourse {
@@ -236,9 +237,11 @@ export default function StudentDashboard() {
                   {enrollment.course.title}
                 </h3>
                 {enrollment.course.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-3">
-                    {enrollment.course.description}
-                  </p>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-3">
+                    {isHtmlContent(enrollment.course.description)
+                      ? <RichTextDisplay html={enrollment.course.description} />
+                      : enrollment.course.description}
+                  </div>
                 )}
               </div>
             </button>

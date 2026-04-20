@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { ArrowLeft, Search, Maximize2, ArrowDown, Loader2 } from 'lucide-react';
+import { RichTextDisplay, isHtmlContent } from '../components/RichTextEditor';
 import CourseFeed from '../components/CourseFeed';
 import PinnedPostsSidebar from '../components/PinnedPostsSidebar';
 import ThemeToggle from '../components/ThemeToggle';
@@ -246,8 +247,9 @@ export default function CourseView() {
 
       const courseOwner = courseData.is_owner === true;
       const isStudent = courseData.is_enrolled === true;
+      const isAdmin = user?.roles.includes('admin');
 
-      if (!courseOwner && !isStudent) {
+      if (!courseOwner && !isStudent && !isAdmin) {
         alert(t('noAccessToCourse'));
         const isSeller = user?.roles.includes('seller');
         navigate(isSeller ? '/seller/dashboard' : '/dashboard');
@@ -325,7 +327,13 @@ export default function CourseView() {
             <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
 <div className={`transition-all duration-300 min-w-0 flex-1 ${isScrolled ? 'md:max-w-[200px]' : ''}`}>
                 <h1 className="text-base md:text-xl font-bold truncate" style={{ color: headerTheme?.text }}>{course.title}</h1>
-                {!isScrolled && <p className="text-xs md:text-sm truncate hidden sm:block" style={{ color: headerTheme?.text, opacity: 0.7 }}>{course.description}</p>}
+                {!isScrolled && (
+                  <div className="text-xs md:text-sm truncate hidden sm:block" style={{ color: headerTheme?.text, opacity: 0.7 }}>
+                    {isHtmlContent(course.description)
+                      ? <RichTextDisplay html={course.description} />
+                      : course.description}
+                  </div>
+                )}
               </div>
             </div>
             <div className={`flex flex-1 max-w-md transition-all duration-300 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
