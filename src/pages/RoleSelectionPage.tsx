@@ -17,6 +17,7 @@ export default function RoleSelectionPage() {
   const [error, setError] = useState<string | null>(null);
   const [copiedUserId, setCopiedUserId] = useState(false);
   const [processingOAuth, setProcessingOAuth] = useState(() => !!new URLSearchParams(window.location.search).get('user_id'));
+  const redirectAfterLogin = searchParams.get('redirect');
 
   useEffect(() => {
     const userId = searchParams.get('user_id');
@@ -48,6 +49,8 @@ export default function RoleSelectionPage() {
       setTimeout(() => navigate('/login'), 2000);
     } finally {
       setProcessingOAuth(false);
+      // If there's a redirect param and we successfully authenticated, go there immediately
+      // The role selection UI will still show since we cleared processingOAuth
     }
   };
 
@@ -72,7 +75,7 @@ export default function RoleSelectionPage() {
       setSelectedRole('student');
       setError(null);
       await new Promise(resolve => setTimeout(resolve, 600));
-      navigate('/student');
+      navigate(redirectAfterLogin || '/student');
     } catch (err: any) {
       console.error('Error selecting student role:', err);
       setError(err.message || 'Failed to select role');
@@ -91,7 +94,9 @@ export default function RoleSelectionPage() {
 
       await new Promise(resolve => setTimeout(resolve, 600));
 
-      if (seller) {
+      if (redirectAfterLogin) {
+        navigate(redirectAfterLogin);
+      } else if (seller) {
         navigate('/seller/dashboard');
       } else {
         navigate('/register-seller');
@@ -137,10 +142,12 @@ export default function RoleSelectionPage() {
             <Sparkles className="w-6 h-6 text-teal-400" />
           </div>
           <h3 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Что вы хотите делать?
+            {redirectAfterLogin ? 'Почти готово!' : 'Что вы хотите делать?'}
           </h3>
           <p className="text-gray-300 text-lg">
-            Выберите роль, которая вам подходит, и начните прямо сейчас
+            {redirectAfterLogin
+              ? 'Выберите роль «Студент», чтобы вернуться к оформлению покупки'
+              : 'Выберите роль, которая вам подходит, и начните прямо сейчас'}
           </p>
 
           {user.user_id && (
