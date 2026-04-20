@@ -349,6 +349,57 @@ export default function PaymentPage() {
         </div>
       </div>
 
+      {/* Legal footer */}
+      <footer className="border-t border-gray-200 bg-white mt-8">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          <div className="grid sm:grid-cols-2 gap-6 mb-6">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Исполнитель услуг</p>
+              <p className="text-sm text-gray-700 font-medium">ИП Белов Сергей Андреевич</p>
+              <p className="text-xs text-gray-500 mt-1">ОГРНИП: 324120000000011</p>
+              <p className="text-xs text-gray-500">ИНН: 121660921407</p>
+              <p className="text-xs text-gray-500">keykurs.ru</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Правовые документы</p>
+              <div className="space-y-1.5">
+                <a
+                  href="/oferta"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors"
+                >
+                  Публичная оферта
+                </a>
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors"
+                >
+                  Политика конфиденциальности
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-100 pt-5">
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Нажимая кнопку «Купить курс», вы подтверждаете, что ознакомились и согласны с условиями{' '}
+              <a href="/oferta" target="_blank" rel="noopener noreferrer" className="text-teal-500 hover:underline">
+                публичной оферты
+              </a>{' '}
+              и даёте согласие на обработку персональных данных в соответствии с{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-teal-500 hover:underline">
+                Политикой конфиденциальности
+              </a>{' '}
+              в соответствии с Федеральным законом № 152-ФЗ «О персональных данных». Услуги оказываются
+              дистанционно (ст. 26.1 Закона РФ «О защите прав потребителей»). Оплата защищена SSL-шифрованием.
+            </p>
+          </div>
+        </div>
+      </footer>
+
       {/* Auth Modal */}
       {showAuthModal && (
         <AuthModal

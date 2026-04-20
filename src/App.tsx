@@ -23,6 +23,8 @@ import ContactsPage from './pages/ContactsPage';
 import BlogListPage from './pages/blog/BlogListPage';
 import BlogPostPage from './pages/blog/BlogPostPage';
 import PaymentPage from './pages/PaymentPage';
+import OfertaPage from './pages/OfertaPage';
+import PrivacyPage from './pages/PrivacyPage';
 import BottomNavigation from './components/BottomNavigation';
 import { useSiteScripts } from './hooks/useSiteScripts';
 
@@ -30,7 +32,7 @@ function AppContent() {
   useSiteScripts();
   const { user } = useAuth();
   const location = useLocation();
-  const isPublicPage = location.pathname === '/login' || location.pathname === '/role-select' || location.pathname === '/register-seller' || location.pathname === '/' || location.pathname === '/contacts' || location.pathname === '/docs' || location.pathname === '/internal-docs' || location.pathname === '/deploy' || location.pathname === '/telegram-callback' || location.pathname === '/auth/vk/callback' || location.pathname === '/auth/yandex/callback' || location.pathname.startsWith('/blog') || location.pathname.startsWith('/pay/');
+  const isPublicPage = location.pathname === '/login' || location.pathname === '/role-select' || location.pathname === '/register-seller' || location.pathname === '/' || location.pathname === '/contacts' || location.pathname === '/docs' || location.pathname === '/internal-docs' || location.pathname === '/deploy' || location.pathname === '/telegram-callback' || location.pathname === '/auth/vk/callback' || location.pathname === '/auth/yandex/callback' || location.pathname.startsWith('/blog') || location.pathname.startsWith('/pay/') || location.pathname === '/oferta' || location.pathname === '/privacy';
   const needsBottomPadding = user && !isPublicPage;
 
   return (
@@ -58,6 +60,8 @@ function AppContent() {
         <Route path="/blog" element={<BlogListPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/pay/:courseId" element={<PaymentPage />} />
+        <Route path="/oferta" element={<OfertaPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
       </Routes>
       <BottomNavigation />
     </div>

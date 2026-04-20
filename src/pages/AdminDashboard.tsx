@@ -12,8 +12,10 @@ import FeaturedTab from './admin/FeaturedTab';
 import ContactsMetricsTab from './admin/ContactsMetricsTab';
 import ScriptsTab from './admin/ScriptsTab';
 import SalesTab from './admin/SalesTab';
+import CoursesTab from './admin/CoursesTab';
+import UsersTab from './admin/UsersTab';
 
-type TabId = 'overview' | 'premium' | 'ads' | 'featured' | 'contacts' | 'scripts' | 'sales';
+type TabId = 'overview' | 'users' | 'courses' | 'premium' | 'ads' | 'featured' | 'contacts' | 'scripts' | 'sales';
 
 interface PendingSeller {
   id: string;
@@ -36,6 +38,8 @@ interface Stats {
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Обзор', icon: Shield },
+  { id: 'users', label: 'Пользователи', icon: Users },
+  { id: 'courses', label: 'Курсы', icon: BookOpen },
   { id: 'sales', label: 'Продажи', icon: TrendingUp },
   { id: 'premium', label: 'Премиум', icon: Crown },
   { id: 'ads', label: 'Реклама', icon: Megaphone },
@@ -404,6 +408,8 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'users' && <UsersTab />}
+        {activeTab === 'courses' && <CoursesTab />}
         {activeTab === 'sales' && <SalesTab />}
         {activeTab === 'premium' && <PremiumTab />}
         {activeTab === 'ads' && <AdsTab />}
