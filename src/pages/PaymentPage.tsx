@@ -112,7 +112,7 @@ export default function PaymentPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
       </div>
     );
@@ -120,13 +120,13 @@ export default function PaymentPage() {
 
   if (error || !course) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
             <X className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Страница не найдена</h2>
-          <p className="text-gray-500">{error || 'Курс недоступен для покупки'}</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Страница не найдена</h2>
+          <p className="text-gray-500 dark:text-gray-400">{error || 'Курс недоступен для покупки'}</p>
         </div>
       </div>
     );
@@ -134,15 +134,15 @@ export default function PaymentPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 dark:from-teal-950 dark:via-gray-900 dark:to-cyan-950 flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-3xl shadow-xl p-10">
-            <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-teal-600" />
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-10">
+            <div className="w-20 h-20 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-teal-600 dark:text-teal-400" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">Оплата прошла успешно!</h1>
-            <p className="text-gray-500 mb-2">Вы получили доступ к курсу</p>
-            <p className="text-lg font-semibold text-teal-700 mb-8">«{course.title}»</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Оплата прошла успешно!</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-2">Вы получили доступ к курсу</p>
+            <p className="text-lg font-semibold text-teal-700 dark:text-teal-400 mb-8">«{course.title}»</p>
             {user ? (
               <button
                 onClick={() => navigate(`/course/${courseId}`)}
@@ -178,14 +178,14 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <KeyKursLogo size={28} color="#0d9488" />
-          <span className="font-bold text-teal-700 text-lg">КейКурс</span>
-          <div className="ml-auto flex items-center gap-1 text-sm text-gray-400">
-            <ShieldCheck className="w-4 h-4 text-teal-500" />
+          <span className="font-bold text-teal-700 dark:text-teal-400 text-lg">КейКурс</span>
+          <div className="ml-auto flex items-center gap-1 text-sm text-gray-400 dark:text-gray-500">
+            <ShieldCheck className="w-4 h-4 text-teal-500 dark:text-teal-400" />
             <span>Безопасная оплата</span>
           </div>
         </div>
@@ -213,14 +213,14 @@ export default function PaymentPage() {
 
             {/* Title */}
             <div>
-              <p className="text-sm font-medium text-teal-600 mb-2 uppercase tracking-wide">
+              <p className="text-sm font-medium text-teal-600 dark:text-teal-400 mb-2 uppercase tracking-wide">
                 {course.seller_name}
               </p>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight mb-4">
                 {course.title}
               </h1>
               {course.description && (
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
                   {course.description}
                 </p>
               )}
@@ -229,20 +229,20 @@ export default function PaymentPage() {
             {/* Course stats */}
             <div className="flex flex-wrap gap-4">
               {course.post_count > 0 && (
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                   <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
                     <BookOpen className="w-5 h-5 text-teal-600" />
                   </div>
                   <span className="font-medium">{course.post_count} материалов</span>
                 </div>
               )}
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
                   <Star className="w-5 h-5 text-amber-500" />
                 </div>
                 <span className="font-medium">Пожизненный доступ</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
                   <Users className="w-5 h-5 text-blue-500" />
                 </div>
@@ -251,8 +251,8 @@ export default function PaymentPage() {
             </div>
 
             {/* What's included */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4 text-lg">Что вы получите</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 text-lg">Что вы получите</h3>
               <ul className="space-y-3">
                 {[
                   'Доступ ко всем материалам курса',
@@ -260,8 +260,8 @@ export default function PaymentPage() {
                   'Просмотр в любое удобное время',
                   'Поддержка на платформе КейКурс',
                 ].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-gray-700">
-                    <CheckCircle2 className="w-5 h-5 text-teal-500 flex-shrink-0" />
+                  <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                    <CheckCircle2 className="w-5 h-5 text-teal-500 dark:text-teal-400 flex-shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -271,19 +271,19 @@ export default function PaymentPage() {
 
           {/* Right: Payment card */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 sticky top-20">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-lg p-6 lg:sticky lg:top-20">
               {/* Price */}
-              <div className="text-center pb-6 border-b border-gray-100 mb-6">
-                <p className="text-5xl font-bold text-gray-900 mb-1">
+              <div className="text-center pb-6 border-b border-gray-100 dark:border-gray-700 mb-6">
+                <p className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                   {formatPrice(course.price)}
                 </p>
-                <p className="text-gray-400 text-sm">единоразовый платеж</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm">единоразовый платеж</p>
               </div>
 
               {/* Enrolled */}
               {!checkingEnrollment && enrolled && (
                 <div className="mb-4">
-                  <div className="flex items-center gap-2 bg-teal-50 text-teal-700 rounded-xl px-4 py-3 text-sm font-medium mb-3">
+                  <div className="flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-xl px-4 py-3 text-sm font-medium mb-3">
                     <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
                     У вас уже есть доступ к этому курсу
                   </div>
@@ -301,7 +301,7 @@ export default function PaymentPage() {
               {!enrolled && (
                 <>
                   {payError && (
-                    <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                    <div className="mb-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm">
                       {payError}
                     </div>
                   )}
@@ -320,7 +320,7 @@ export default function PaymentPage() {
                   </button>
 
                   {!user && (
-                    <p className="text-center text-sm text-gray-400 mb-4">
+                    <p className="text-center text-sm text-gray-400 dark:text-gray-500 mb-4">
                       Нажимая «Купить», вы перейдёте к авторизации
                     </p>
                   )}
@@ -328,16 +328,16 @@ export default function PaymentPage() {
               )}
 
               {/* Security badge */}
-              <div className="flex items-center justify-center gap-2 text-gray-400 text-xs pt-2">
+              <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-xs pt-2">
                 <Lock className="w-3.5 h-3.5" />
                 <span>Оплата через ЮKassa · SSL-шифрование</span>
               </div>
 
               {/* YooKassa logo row */}
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-center gap-3 text-gray-300">
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   {['Visa', 'Mastercard', 'МИР', 'SBP'].map((m) => (
-                    <span key={m} className="text-xs font-medium border border-gray-200 rounded px-2 py-0.5 text-gray-400">
+                    <span key={m} className="text-xs font-medium border border-gray-200 dark:border-gray-600 rounded px-2 py-0.5 text-gray-400 dark:text-gray-400">
                       {m}
                     </span>
                   ))}
@@ -350,24 +350,24 @@ export default function PaymentPage() {
       </div>
 
       {/* Legal footer */}
-      <footer className="border-t border-gray-200 bg-white mt-8">
+      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8">
         <div className="max-w-5xl mx-auto px-4 py-8">
           <div className="grid sm:grid-cols-2 gap-6 mb-6">
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Исполнитель услуг</p>
-              <p className="text-sm text-gray-700 font-medium">ИП Белов Сергей Андреевич</p>
-              <p className="text-xs text-gray-500 mt-1">ОГРНИП: 324120000000011</p>
-              <p className="text-xs text-gray-500">ИНН: 121660921407</p>
-              <p className="text-xs text-gray-500">keykurs.ru</p>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Исполнитель услуг</p>
+              <p className="text-sm text-gray-700 dark:text-gray-200 font-medium">ИП Белов Сергей Андреевич</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">ОГРНИП: 324120000000011</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">ИНН: 121660921407</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">keykurs.ru</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Правовые документы</p>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Правовые документы</p>
               <div className="space-y-1.5">
                 <a
                   href="/oferta"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors"
+                  className="block text-sm text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:underline transition-colors"
                 >
                   Публичная оферта
                 </a>
@@ -375,7 +375,7 @@ export default function PaymentPage() {
                   href="/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors"
+                  className="block text-sm text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:underline transition-colors"
                 >
                   Политика конфиденциальности
                 </a>
@@ -383,8 +383,8 @@ export default function PaymentPage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-100 pt-5">
-            <p className="text-xs text-gray-400 leading-relaxed">
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-5">
+            <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed">
               Нажимая кнопку «Купить курс», вы подтверждаете, что ознакомились и согласны с условиями{' '}
               <a href="/oferta" target="_blank" rel="noopener noreferrer" className="text-teal-500 hover:underline">
                 публичной оферты
@@ -415,20 +415,20 @@ function AuthModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10">
+      <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md p-8 z-10">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors"
         >
-          <X className="w-4 h-4 text-gray-600" />
+          <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-7 h-7 text-teal-600" />
+          <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-7 h-7 text-teal-600 dark:text-teal-400" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-1">Войдите, чтобы купить</h2>
-          <p className="text-gray-500 text-sm">После входа вы сможете оплатить курс и получить доступ</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">Войдите, чтобы купить</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">После входа вы сможете оплатить курс и получить доступ</p>
         </div>
 
         <div className="space-y-4">
@@ -436,10 +436,10 @@ function AuthModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () 
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-gray-200 dark:border-gray-700" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white text-gray-400">или через другой сервис</span>
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500">или через другой сервис</span>
             </div>
           </div>
 

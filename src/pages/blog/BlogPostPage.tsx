@@ -7,17 +7,17 @@ import KeyKursLogo from '../../components/KeyKursLogo';
 function renderSection(section: BlogSection, index: number) {
   switch (section.type) {
     case 'h2':
-      return <h2 key={index} className="text-xl font-bold text-gray-900 mt-8 mb-3">{section.text}</h2>;
+      return <h2 key={index} className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-3">{section.text}</h2>;
     case 'h3':
-      return <h3 key={index} className="text-lg font-bold text-gray-800 mt-5 mb-2">{section.text}</h3>;
+      return <h3 key={index} className="text-lg font-bold text-gray-800 dark:text-gray-200 mt-5 mb-2">{section.text}</h3>;
     case 'p':
-      return <p key={index} className="text-gray-600 leading-relaxed mb-4">{section.text}</p>;
+      return <p key={index} className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">{section.text}</p>;
     case 'ul':
       return (
         <ul key={index} className="mb-4 space-y-2">
           {section.items?.map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-gray-600">
-              <CheckCircle size={16} className="text-teal-500 mt-0.5 flex-shrink-0" />
+            <li key={i} className="flex items-start gap-2 text-gray-600 dark:text-gray-300">
+              <CheckCircle size={16} className="text-teal-500 dark:text-teal-400 mt-0.5 flex-shrink-0" />
               <span>{item}</span>
             </li>
           ))}
@@ -27,8 +27,8 @@ function renderSection(section: BlogSection, index: number) {
       return (
         <ol key={index} className="mb-4 space-y-2 list-none">
           {section.items?.map((item, i) => (
-            <li key={i} className="flex items-start gap-3 text-gray-600">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-100 text-teal-700 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+            <li key={i} className="flex items-start gap-3 text-gray-600 dark:text-gray-300">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
               <span>{item}</span>
             </li>
           ))}
@@ -36,9 +36,9 @@ function renderSection(section: BlogSection, index: number) {
       );
     case 'tip':
       return (
-        <div key={index} className="bg-teal-50 border-l-4 border-teal-400 rounded-r-xl p-4 mb-4 flex gap-3">
-          <Lightbulb size={18} className="text-teal-600 flex-shrink-0 mt-0.5" />
-          <p className="text-teal-800 text-sm leading-relaxed">{section.text}</p>
+        <div key={index} className="bg-teal-50 dark:bg-teal-900/20 border-l-4 border-teal-400 dark:border-teal-500 rounded-r-xl p-4 mb-4 flex gap-3">
+          <Lightbulb size={18} className="text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5" />
+          <p className="text-teal-800 dark:text-teal-200 text-sm leading-relaxed">{section.text}</p>
         </div>
       );
     default:
@@ -64,50 +64,50 @@ export default function BlogPostPage() {
   const nextPost = currentIndex < blogPosts.length - 1 ? blogPosts[currentIndex + 1] : null;
 
   const CATEGORY_COLORS: Record<string, string> = {
-    'Руководства': 'bg-teal-100 text-teal-800',
-    'Аналитика': 'bg-blue-100 text-blue-800',
-    'Монетизация': 'bg-green-100 text-green-800',
-    'Сравнения': 'bg-orange-100 text-orange-800',
-    'Педагогика': 'bg-rose-100 text-rose-800',
+    'Руководства': 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
+    'Аналитика': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+    'Монетизация': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+    'Сравнения': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+    'Педагогика': 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300',
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <KeyKursLogo size={28} />
-            <span className="font-bold text-lg text-gray-900">
-              Кей<span className="text-teal-600">Курс</span>
+            <span className="font-bold text-lg text-gray-900 dark:text-gray-100">
+              Кей<span className="text-teal-600 dark:text-teal-400">Курс</span>
             </span>
           </Link>
-          <Link to="/login" className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors">
+          <Link to="/login" className="text-sm font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">
             Войти →
           </Link>
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-10">
-        <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-teal-600 transition-colors mb-6">
+        <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors mb-6">
           <ArrowLeft size={14} />
           Все статьи
         </Link>
 
         <article>
-          <div className="flex items-center gap-3 mb-4">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${CATEGORY_COLORS[post.category] ?? 'bg-gray-100 text-gray-700'}`}>
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${CATEGORY_COLORS[post.category] ?? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
               {post.category}
             </span>
-            <span className="flex items-center gap-1 text-xs text-gray-400">
+            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
               <Clock size={12} />
               {post.readTime} мин чтения
             </span>
-            <time dateTime={post.publishedAt} className="text-xs text-gray-400">
+            <time dateTime={post.publishedAt} className="text-xs text-gray-400 dark:text-gray-500">
               {new Date(post.publishedAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-tight mb-6">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight mb-6">
             {post.title}
           </h1>
 
@@ -128,35 +128,35 @@ export default function BlogPostPage() {
         </div>
 
         {(prevPost || nextPost) && (
-          <nav className="mt-8 grid grid-cols-2 gap-4">
+          <nav className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {prevPost ? (
               <Link
                 to={`/blog/${prevPost.slug}`}
-                className="group col-span-1 bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
               >
-                <div className="flex items-center gap-1 text-xs text-gray-400 mb-1.5">
+                <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 mb-1.5">
                   <ArrowLeft size={12} />
                   Предыдущая
                 </div>
-                <p className="text-sm font-semibold text-gray-800 group-hover:text-teal-600 transition-colors line-clamp-2">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2">
                   {prevPost.title}
                 </p>
               </Link>
-            ) : <div />}
+            ) : <div className="hidden sm:block" />}
             {nextPost ? (
               <Link
                 to={`/blog/${nextPost.slug}`}
-                className="group col-span-1 bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all text-right"
+                className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all sm:text-right"
               >
-                <div className="flex items-center justify-end gap-1 text-xs text-gray-400 mb-1.5">
+                <div className="flex items-center sm:justify-end gap-1 text-xs text-gray-400 dark:text-gray-500 mb-1.5">
                   Следующая
                   <ArrowRight size={12} />
                 </div>
-                <p className="text-sm font-semibold text-gray-800 group-hover:text-teal-600 transition-colors line-clamp-2">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2">
                   {nextPost.title}
                 </p>
               </Link>
-            ) : <div />}
+            ) : <div className="hidden sm:block" />}
           </nav>
         )}
       </main>

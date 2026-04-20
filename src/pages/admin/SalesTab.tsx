@@ -68,13 +68,13 @@ function formatRub(kopecks: number | string) {
 
 function StatCard({ icon: Icon, label, value, sub, color }: { icon: any; label: string; value: string; sub?: string; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
       <div className="flex items-start justify-between mb-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
-      <p className="text-2xl font-bold text-gray-900 mb-0.5">{value}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-0.5">{value}</p>
       <p className="text-sm text-gray-500">{label}</p>
       {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
     </div>
@@ -190,14 +190,14 @@ export default function SalesTab() {
           </div>
 
           {/* Top sellers */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
             <button
               onClick={() => setShowTopSellers(p => !p)}
               className="w-full flex items-center justify-between px-6 py-4 text-left"
             >
               <div className="flex items-center gap-2">
                 <Store className="w-5 h-5 text-gray-400" />
-                <span className="font-semibold text-gray-900">Топ продавцов</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">Топ продавцов</span>
               </div>
               {showTopSellers ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
             </button>
@@ -206,16 +206,16 @@ export default function SalesTab() {
                 {stats.top_sellers.length === 0 ? (
                   <p className="text-center py-6 text-gray-400 text-sm">Нет данных</p>
                 ) : (
-                  <div className="divide-y divide-gray-50">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {stats.top_sellers.map((s, i) => (
                       <div key={s.id} className="flex items-center gap-4 px-6 py-3">
                         <span className="text-lg font-bold text-gray-200 w-6 text-center">{i + 1}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{s.business_name}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{s.business_name}</p>
                           <p className="text-xs text-gray-400">{s.sales} продаж</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-gray-900">{formatRub(s.gmv)}</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">{formatRub(s.gmv)}</p>
                           <p className="text-xs text-teal-600">→ {formatRub(s.platform_fee)} платформе</p>
                         </div>
                       </div>
@@ -229,11 +229,11 @@ export default function SalesTab() {
       ) : null}
 
       {/* Withdrawal requests */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <ArrowDownToLine className="w-5 h-5 text-gray-400" />
-            <h3 className="font-semibold text-gray-900">Заявки на вывод</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Заявки на вывод</h3>
             {pendingWithdrawals > 0 && (
               <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{pendingWithdrawals}</span>
             )}
@@ -262,7 +262,7 @@ export default function SalesTab() {
         ) : withdrawals.length === 0 ? (
           <p className="text-center py-8 text-gray-400 text-sm">Заявок нет</p>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {withdrawals.map(w => {
               const st = WITHDRAWAL_STATUS[w.status];
               const Icon = st.icon;
@@ -273,7 +273,7 @@ export default function SalesTab() {
                   <div className="flex items-start gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 flex-wrap mb-2">
-                        <p className="font-bold text-gray-900 text-lg">{formatRub(w.amount)}</p>
+                        <p className="font-bold text-gray-900 dark:text-gray-100 text-lg">{formatRub(w.amount)}</p>
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${st.cls}`}>
                           <Icon className="w-3.5 h-3.5" />
                           {st.label}
@@ -345,9 +345,9 @@ export default function SalesTab() {
       </div>
 
       {/* Orders list */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 className="font-semibold text-gray-900">Все платежи</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Все платежи</h3>
           <div className="flex gap-1">
             {(['all', 'succeeded', 'pending', 'canceled'] as StatusFilter[]).map(s => (
               <button
@@ -376,7 +376,7 @@ export default function SalesTab() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                  <tr className="bg-gray-50 dark:bg-gray-900/40 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">
                     <th className="text-left px-6 py-3 font-medium">Дата</th>
                     <th className="text-left px-4 py-3 font-medium">Покупатель</th>
                     <th className="text-left px-4 py-3 font-medium">Курс</th>
@@ -386,20 +386,20 @@ export default function SalesTab() {
                     <th className="text-center px-4 py-3 font-medium">Статус</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {orders.map(o => {
                     const buyer = o.buyer;
                     const buyerName = [buyer.first_name, buyer.last_name].filter(Boolean).join(' ') || buyer.telegram_username || buyer.email || '—';
                     const st = STATUS_LABELS[o.status] || { label: o.status, cls: 'bg-gray-100 text-gray-600' };
                     return (
-                      <tr key={o.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-3 text-gray-500 whitespace-nowrap">
+                      <tr key={o.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                        <td className="px-6 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                           {new Date(o.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                         </td>
-                        <td className="px-4 py-3 text-gray-900 max-w-[130px] truncate">{buyerName}</td>
-                        <td className="px-4 py-3 text-gray-700 max-w-[160px] truncate">{o.course.title}</td>
-                        <td className="px-4 py-3 text-gray-500 max-w-[120px] truncate">{o.seller.business_name}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-gray-900 whitespace-nowrap">{formatRub(o.amount)}</td>
+                        <td className="px-4 py-3 text-gray-900 dark:text-gray-100 max-w-[130px] truncate">{buyerName}</td>
+                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-[160px] truncate">{o.course.title}</td>
+                        <td className="px-4 py-3 text-gray-500 dark:text-gray-400 max-w-[120px] truncate">{o.seller.business_name}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">{formatRub(o.amount)}</td>
                         <td className="px-4 py-3 text-right text-teal-600 whitespace-nowrap">{formatRub(o.platform_fee)}</td>
                         <td className="px-4 py-3 text-center">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span>
@@ -412,20 +412,20 @@ export default function SalesTab() {
             </div>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-                <p className="text-sm text-gray-500">Страница {page} из {totalPages} ({total} записей)</p>
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Страница {page} из {totalPages} ({total} записей)</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                    className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     Назад
                   </button>
                   <button
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                    className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     Вперёд
                   </button>
@@ -440,22 +440,22 @@ export default function SalesTab() {
       {noteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setNoteModal(null)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10">
-            <h3 className="font-bold text-gray-900 mb-1">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">
               {noteModal.action === 'approved' ? 'Одобрить заявку' : noteModal.action === 'rejected' ? 'Отклонить заявку' : 'Отметить выплаченной'}
             </h3>
-            <p className="text-sm text-gray-500 mb-4">Можно оставить комментарий для продавца (необязательно)</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Можно оставить комментарий для продавца (необязательно)</p>
             <textarea
               value={adminNote}
               onChange={e => setAdminNote(e.target.value)}
               placeholder="Комментарий..."
               rows={3}
-              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none mb-4 transition-all"
+              className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none mb-4 transition-all"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => setNoteModal(null)}
-                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Отмена
               </button>
