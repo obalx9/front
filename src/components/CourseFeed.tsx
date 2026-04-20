@@ -16,6 +16,7 @@ import { getPostStyles, getPostBgOverlayStyle } from '../utils/postStyles';
 import type { ThemeConfig } from '../utils/themePresets';
 import MediaGallery, { MediaItem } from './MediaGallery';
 import MediaGroupEditor from './MediaGroupEditor';
+import RichTextEditor, { RichTextDisplay, isHtmlContent } from './RichTextEditor';
 
 function renderTextWithLinks(text: string) {
   const urlRegex = /(https?:\/\/[^\s\])\u2019\u201d"']+)/g;
@@ -1058,7 +1059,7 @@ export default function CourseFeed({
     )}
 
     {isCreating && (
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 shadow-lg flex-shrink-0 overflow-y-auto max-h-[60vh]">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 shadow-lg flex-shrink-0 overflow-y-auto max-h-[80vh]">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1077,12 +1078,11 @@ export default function CourseFeed({
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('content')}
             </label>
-            <textarea
+            <RichTextEditor
               value={formData.text_content}
-              onChange={(e) => setFormData(prev => ({ ...prev, text_content: e.target.value }))}
-              rows={3}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+              onChange={(val) => setFormData(prev => ({ ...prev, text_content: val }))}
               placeholder={t('postContent')}
+              minHeight={200}
             />
           </div>
 
@@ -1484,9 +1484,13 @@ export default function CourseFeed({
 
                   <div className={courseSettings?.compact_view ? 'p-3' : 'p-4'}>
                     {post.text_content && (
-                      <p className={`whitespace-pre-wrap leading-relaxed ${courseSettings?.compact_view ? 'mb-2' : 'mb-3'}`}>
-                        {renderTextWithLinks(post.text_content)}
-                      </p>
+                      <div className={`leading-relaxed ${courseSettings?.compact_view ? 'mb-2' : 'mb-3'}`}>
+                        {isHtmlContent(post.text_content) ? (
+                          <RichTextDisplay html={post.text_content} />
+                        ) : (
+                          <p className="whitespace-pre-wrap">{renderTextWithLinks(post.text_content)}</p>
+                        )}
+                      </div>
                     )}
 
                     <div className="flex items-center justify-between">

@@ -8,6 +8,7 @@ import KeyKursLogo from '../components/KeyKursLogo';
 import TelegramLogin from '../components/TelegramLogin';
 import LanguageSelector from '../components/LanguageSelector';
 import OAuthButtons from '../components/OAuthButtons';
+import RichTextEditor from '../components/RichTextEditor';
 
 export default function SellerRegistrationPage() {
   const navigate = useNavigate();
@@ -139,13 +140,11 @@ export default function SellerRegistrationPage() {
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                 {t('description')}
               </label>
-              <textarea
-                id="description"
+              <RichTextEditor
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                onChange={setDescription}
                 placeholder={t('descriptionPlaceholder')}
+                minHeight={140}
               />
             </div>
 

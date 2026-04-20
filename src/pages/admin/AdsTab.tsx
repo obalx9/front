@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
-import { Plus, Edit2, Trash2, X, Save, Eye, EyeOff, ExternalLink, BarChart2, Image } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, X, Save, Eye, EyeOff, ExternalLink, BarChart2, Image } from 'lucide-react';
 import FileUpload from '../../components/FileUpload';
+import RichTextEditor, { RichTextDisplay, isHtmlContent } from '../../components/RichTextEditor';
 
 interface AdPost {
   id: string;
@@ -231,12 +232,11 @@ export default function AdsTab() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Текст</label>
-              <textarea
+              <RichTextEditor
                 value={form.text_content}
-                onChange={e => setForm(p => ({ ...p, text_content: e.target.value }))}
-                rows={4}
+                onChange={val => setForm(p => ({ ...p, text_content: val }))}
                 placeholder="Текст рекламного поста..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                minHeight={140}
               />
             </div>
 
@@ -404,7 +404,13 @@ export default function AdsTab() {
                       <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">{ad.title}</p>
                     )}
                     {ad.text_content && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-0.5">{ad.text_content}</p>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-0.5">
+                        {isHtmlContent(ad.text_content) ? (
+                          <RichTextDisplay html={ad.text_content} />
+                        ) : (
+                          ad.text_content
+                        )}
+                      </div>
                     )}
                     {ad.link_url && (
                       <p className="text-xs text-teal-600 dark:text-teal-400 flex items-center gap-1 mt-1 truncate">
