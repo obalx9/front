@@ -294,11 +294,16 @@ export default function SellerSalesTab() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <button
           onClick={() => setShowOrdersSection(p => !p)}
-          className="w-full flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 text-left"
+          className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 text-left gap-3"
         >
-          <h3 className="font-semibold text-gray-900 dark:text-white">История платежей</h3>
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <h3 className="font-semibold text-gray-900 dark:text-white">История платежей</h3>
+            <div className="sm:hidden">
+              {showOrdersSection ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </div>
+          </div>
           <div className="flex items-center gap-3">
-            <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-wrap gap-1" onClick={e => e.stopPropagation()}>
               {(['all', 'succeeded', 'pending', 'canceled'] as OrderStatusFilter[]).map(s => (
                 <button
                   key={s}
@@ -313,7 +318,9 @@ export default function SellerSalesTab() {
                 </button>
               ))}
             </div>
-            {showOrdersSection ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+            <div className="hidden sm:block flex-shrink-0">
+              {showOrdersSection ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </div>
           </div>
         </button>
 

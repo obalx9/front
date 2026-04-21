@@ -27,6 +27,8 @@ import {
   ArrowRight,
   CheckCircle,
   Send,
+  LayoutDashboard,
+  LogIn,
 } from 'lucide-react';
 
 interface FeaturedCourse {
@@ -200,16 +202,18 @@ export default function HomePage() {
               {user ? (
                 <Link
                   to="/dashboard"
-                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                 >
-                  {t('studentDashboard')}
+                  <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('studentDashboard')}</span>
                 </Link>
               ) : (
                 <Link
                   to="/login"
-                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                 >
-                  {t('signIn')}
+                  <LogIn className="w-4 h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('signIn')}</span>
                 </Link>
               )}
             </div>

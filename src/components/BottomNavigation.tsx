@@ -25,6 +25,9 @@ export default function BottomNavigation() {
   const isLoginPage = pathname === '/login' || pathname === '/register-seller' || pathname === '/role-select';
   if (isLoginPage) return null;
 
+  const isPaymentPage = pathname.startsWith('/pay/') || pathname.startsWith('/payment/');
+  if (isPaymentPage) return null;
+
   const isStudent = user.roles.includes('student');
   const isSeller = user.roles.includes('seller');
   const isStudentDashboard = pathname === '/dashboard' || pathname === '/student';
@@ -34,6 +37,7 @@ export default function BottomNavigation() {
   const isSellerCourseEdit = pathname.match(/^\/seller\/course\/[^/]+$/);
   const isStudentsManager = pathname.match(/^\/seller\/course\/[^/]+\/students$/);
   const isAdminPage = pathname === '/admin';
+  const isHomePage = pathname === '/';
 
   const courseIdMatch = pathname.match(/\/(?:course|seller\/course)\/([^/]+)/);
   const courseId = courseIdMatch?.[1];
@@ -105,11 +109,11 @@ export default function BottomNavigation() {
       ];
     }
 
-    if (isAdminPage) {
-      return [homeItem];
+    if (isAdminPage || isHomePage) {
+      return [];
     }
 
-    return [homeItem];
+    return [];
   };
 
   const menuItems = getMenuItems();
