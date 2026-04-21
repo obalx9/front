@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, BookOpen, Star, ArrowRight, X, CheckCircle2,
-  Lock, Users, Loader2, ChevronRight, Play, CreditCard
+  Lock, Users, Loader2, ChevronRight, Play, CreditCard, Mail
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -30,6 +30,7 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [enrolled, setEnrolled] = useState(false);
@@ -78,7 +79,17 @@ export default function PaymentPage() {
       setShowAuthModal(true);
       return;
     }
+    if (!user.email) {
+      setShowEmailModal(true);
+      return;
+    }
     initiatePayment();
+  };
+
+  const handleEmailSaved = async () => {
+    await refreshUser();
+    setShowEmailModal(false);
+    await initiatePayment();
   };
 
   const initiatePayment = async () => {
@@ -100,6 +111,8 @@ export default function PaymentPage() {
   const handleAuthSuccess = async () => {
     await refreshUser();
     setShowAuthModal(false);
+    // automatically proceed to payment after login
+    await initiatePayment();
   };
 
   const formatPrice = (kopecks: number) => {
@@ -407,6 +420,100 @@ export default function PaymentPage() {
           onSuccess={handleAuthSuccess}
         />
       )}
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <EmailModal
+          onClose={() => setShowEmailModal(false)}
+          onSaved={handleEmailSaved}
+        />
+      )}
+    </div>
+  );
+}
+
+function EmailModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const [email, setEmail] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Введите корректный email');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      await api.patch('/api/auth/update-email', { email: email.trim() });
+      await onSaved();
+    } catch (err: any) {
+      setError(err.message || 'Не удалось сохранить email');
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md p-8 z-10">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors"
+        >
+          <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+        </button>
+
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center mx-auto mb-4">
+            <Mail className="w-7 h-7 text-teal-600 dark:text-teal-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">Укажите ваш email</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            Email нужен для отправки чека об оплате и восстановления доступа к курсу
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input
+              ref={inputRef}
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setError(null); }}
+              placeholder="example@mail.ru"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base"
+              disabled={saving}
+            />
+            {error && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving || !email.trim()}
+            className="w-full flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
+          >
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
+            {saving ? 'Сохранение...' : 'Сохранить и оплатить'}
+          </button>
+        </form>
+
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
+          Email используется только для отправки чека согласно 54-ФЗ
+        </p>
+      </div>
     </div>
   );
 }
