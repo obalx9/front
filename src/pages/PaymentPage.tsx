@@ -35,6 +35,8 @@ export default function PaymentPage() {
   const [payError, setPayError] = useState<string | null>(null);
   const [enrolled, setEnrolled] = useState(false);
   const [checkingEnrollment, setCheckingEnrollment] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [confirmReady, setConfirmReady] = useState(false);
 
   const status = searchParams.get('status');
   const isSuccess = status === 'success';
@@ -73,6 +75,40 @@ export default function PaymentPage() {
       checkEnrollment();
     }
   }, [authLoading, user, checkEnrollment]);
+
+  // On success return page: poll /confirm until enrolled
+  useEffect(() => {
+    if (!isSuccess || !courseId || authLoading) return;
+    if (!user) return;
+
+    let stopped = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 12;
+
+    const poll = async () => {
+      setConfirming(true);
+      while (!stopped && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        try {
+          const data = await api.post<{ enrolled: boolean }>(`/api/payments/confirm/${courseId}`, {});
+          if (data.enrolled) {
+            setConfirmReady(true);
+            setConfirming(false);
+            return;
+          }
+        } catch {
+          // ignore, keep polling
+        }
+        if (!stopped && attempts < MAX_ATTEMPTS) {
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+      setConfirming(false);
+    };
+
+    poll();
+    return () => { stopped = true; };
+  }, [isSuccess, courseId, authLoading, user]);
 
   const handleBuyClick = () => {
     if (!user) {
@@ -156,7 +192,21 @@ export default function PaymentPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Оплата прошла успешно!</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-2">Вы получили доступ к курсу</p>
             <p className="text-lg font-semibold text-teal-700 dark:text-teal-400 mb-8">«{course.title}»</p>
-            {user ? (
+
+            {!user ? (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="w-full flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 rounded-2xl transition-colors"
+              >
+                Войти и открыть курс
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            ) : confirming && !confirmReady ? (
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="w-7 h-7 animate-spin text-teal-500" />
+                <p className="text-sm text-gray-400 dark:text-gray-500">Активируем доступ к курсу...</p>
+              </div>
+            ) : confirmReady ? (
               <button
                 onClick={() => navigate(`/course/${courseId}`)}
                 className="w-full flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 rounded-2xl transition-colors"
@@ -165,13 +215,18 @@ export default function PaymentPage() {
                 <ChevronRight className="w-5 h-5" />
               </button>
             ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="w-full flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 rounded-2xl transition-colors"
-              >
-                Войти и открыть курс
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="space-y-3">
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  Доступ активируется — обычно это занимает несколько секунд.
+                </p>
+                <button
+                  onClick={() => navigate(`/course/${courseId}`)}
+                  className="w-full flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 rounded-2xl transition-colors"
+                >
+                  Перейти к курсу
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             )}
           </div>
         </div>
