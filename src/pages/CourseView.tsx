@@ -327,12 +327,12 @@ export default function CourseView() {
             <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
 <div className={`transition-all duration-300 min-w-0 flex-1 ${isScrolled ? 'md:max-w-[200px]' : ''}`}>
                 <h1 className="text-base md:text-xl font-bold truncate" style={{ color: headerTheme?.text }}>{course.title}</h1>
-                {!isScrolled && (
-                  <div className="text-xs md:text-sm truncate hidden sm:block" style={{ color: headerTheme?.text, opacity: 0.7 }}>
+                {!isScrolled && course.description && (
+                  <p className="text-xs md:text-sm truncate hidden sm:block" style={{ color: headerTheme?.text, opacity: 0.7 }}>
                     {isHtmlContent(course.description)
-                      ? <RichTextDisplay html={course.description} />
+                      ? course.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
                       : course.description}
-                  </div>
+                  </p>
                 )}
               </div>
             </div>
