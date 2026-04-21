@@ -38,6 +38,18 @@ export default function PaymentPage() {
   const [checkingEnrollment, setCheckingEnrollment] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [confirmReady, setConfirmReady] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [promoValidating, setPromoValidating] = useState(false);
+  const [promoResult, setPromoResult] = useState<{
+    promo_code_id: string;
+    code: string;
+    discount_type: string;
+    discount_value: number;
+    discount_amount: number;
+    original_price: number;
+    final_price: number;
+  } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   const status = searchParams.get('status');
   const isSuccess = status === 'success';
@@ -129,12 +141,38 @@ export default function PaymentPage() {
     await initiatePayment();
   };
 
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim() || !courseId || !user) return;
+    setPromoValidating(true);
+    setPromoError(null);
+    setPromoResult(null);
+    try {
+      const data = await api.get<any>(
+        `/api/payments/promo/validate?code=${encodeURIComponent(promoInput.trim())}&course_id=${courseId}`
+      );
+      setPromoResult(data);
+    } catch (err: any) {
+      setPromoError(err.message || 'Промокод недействителен');
+    } finally {
+      setPromoValidating(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setPromoResult(null);
+    setPromoError(null);
+    setPromoInput('');
+  };
+
   const initiatePayment = async () => {
     if (!courseId) return;
     setPaying(true);
     setPayError(null);
     try {
-      const data = await api.post<{ payment_url: string }>('/api/payments/create', { course_id: courseId });
+      const data = await api.post<{ payment_url: string }>('/api/payments/create', {
+        course_id: courseId,
+        promo_code: promoResult?.code || undefined,
+      });
       if (data.payment_url) {
         window.location.href = data.payment_url;
       }
@@ -343,10 +381,29 @@ export default function PaymentPage() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-lg p-6 lg:sticky lg:top-20">
               {/* Price */}
               <div className="text-center pb-6 border-b border-gray-100 dark:border-gray-700 mb-6">
-                <p className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                  {formatPrice(course.price)}
-                </p>
-                <p className="text-gray-400 dark:text-gray-500 text-sm">единоразовый платеж</p>
+                {promoResult ? (
+                  <>
+                    <p className="text-2xl font-medium text-gray-400 dark:text-gray-500 line-through mb-1">
+                      {formatPrice(promoResult.original_price)}
+                    </p>
+                    <p className="text-5xl font-bold text-teal-600 dark:text-teal-400 mb-1">
+                      {formatPrice(promoResult.final_price)}
+                    </p>
+                    <p className="text-sm text-teal-600 dark:text-teal-400 font-medium">
+                      Скидка {promoResult.discount_type === 'percent'
+                        ? `${promoResult.discount_value}%`
+                        : formatPrice(promoResult.discount_amount)
+                      } по промокоду
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                      {formatPrice(course.price)}
+                    </p>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm">единоразовый платеж</p>
+                  </>
+                )}
               </div>
 
               {/* Enrolled */}
@@ -363,6 +420,49 @@ export default function PaymentPage() {
                     Перейти к курсу
                     <ArrowRight className="w-5 h-5" />
                   </button>
+                </div>
+              )}
+
+              {/* Promo code input */}
+              {!enrolled && user && (
+                <div className="mb-5">
+                  {promoResult ? (
+                    <div className="flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-xl px-4 py-3">
+                      <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+                      <span className="text-sm font-medium text-teal-700 dark:text-teal-300 flex-1">
+                        Промокод <span className="font-bold">{promoResult.code}</span> применён
+                      </span>
+                      <button
+                        onClick={handleRemovePromo}
+                        className="text-teal-500 hover:text-teal-700 dark:hover:text-teal-200 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={promoInput}
+                          onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setPromoError(null); }}
+                          onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
+                          placeholder="Промокод"
+                          className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm placeholder-gray-400 dark:placeholder-gray-500"
+                        />
+                        <button
+                          onClick={handleApplyPromo}
+                          disabled={!promoInput.trim() || promoValidating}
+                          className="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-200 font-medium text-sm rounded-xl transition-colors whitespace-nowrap"
+                        >
+                          {promoValidating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Применить'}
+                        </button>
+                      </div>
+                      {promoError && (
+                        <p className="text-red-600 dark:text-red-400 text-xs">{promoError}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -385,7 +485,10 @@ export default function PaymentPage() {
                     ) : (
                       <CreditCard className="w-5 h-5" />
                     )}
-                    {paying ? 'Подготовка...' : 'Купить курс'}
+                    {paying ? 'Подготовка...' : promoResult
+                      ? `Купить за ${formatPrice(promoResult.final_price)}`
+                      : 'Купить курс'
+                    }
                   </button>
 
                   {!user && (

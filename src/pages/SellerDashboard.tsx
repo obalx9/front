@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
-import { Store, Plus, Users, BookOpen, LogOut, Pencil as Edit, Trash2, Eye, Send, MoreVertical, GraduationCap, FileText, X, BookMarked, TrendingUp } from 'lucide-react';
+import { Store, Plus, Users, BookOpen, LogOut, Pencil as Edit, Trash2, Eye, Send, MoreVertical, GraduationCap, FileText, X, BookMarked, TrendingUp, Tag } from 'lucide-react';
 import KeyKursLogo from '../components/KeyKursLogo';
 import LanguageSelector from '../components/LanguageSelector';
 import ThemeToggle from '../components/ThemeToggle';
 import TelegramBotConfig from '../components/TelegramBotConfig';
 import ConfirmDialog from '../components/ConfirmDialog';
 import SellerSalesTab from './seller/SellerSalesTab';
+import SellerPromoCodesTab from './seller/SellerPromoCodesTab';
 import RichTextEditor, { RichTextDisplay, isHtmlContent } from '../components/RichTextEditor';
 
 interface Course {
@@ -44,7 +45,7 @@ export default function SellerDashboard() {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; courseId: string | null }>({ open: false, courseId: null });
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
-  const [activeTab, setActiveTab] = useState<'courses' | 'sales'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'sales' | 'promo'>('courses');
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -261,11 +262,23 @@ export default function SellerDashboard() {
             <TrendingUp className="w-4 h-4" />
             Продажи
           </button>
+          <button
+            onClick={() => setActiveTab('promo')}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'promo'
+                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            <Tag className="w-4 h-4" />
+            Промокоды
+          </button>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === 'sales' && <SellerSalesTab />}
+        {activeTab === 'promo' && <SellerPromoCodesTab />}
 
         {activeTab === 'courses' && showWelcomeBanner && (
           <div className="mb-6 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4 flex items-start gap-4">
