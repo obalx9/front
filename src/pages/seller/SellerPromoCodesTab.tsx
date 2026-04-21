@@ -57,7 +57,7 @@ export default function SellerPromoCodesTab() {
     try {
       const [codesData, coursesData] = await Promise.all([
         api.get<PromoCode[]>('/api/payments/promo/seller'),
-        api.get<Course[]>('/api/courses'),
+        api.get<Course[]>('/api/sellers/me/courses'),
       ]);
       setCodes(codesData);
       setCourses(coursesData);
