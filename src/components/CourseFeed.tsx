@@ -1046,7 +1046,7 @@ export default function CourseFeed({
   return (
     <div className="w-full h-full flex flex-col">
 
-    {editable && !isCreating && (
+    {editable && !isCreating && !editingPostId && (
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex-shrink-0">
         <button
           onClick={handleCreatePost}
@@ -1058,9 +1058,17 @@ export default function CourseFeed({
       </div>
     )}
 
-    {isCreating && (
+    {(isCreating || editingPostId) && (
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 shadow-lg flex-shrink-0 overflow-y-auto max-h-[80vh]">
         <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+              {editingPostId ? t('editPost') : t('createPost')}
+            </h3>
+            <button onClick={handleCancelEdit} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('title')}
@@ -1150,7 +1158,7 @@ export default function CourseFeed({
           <div className="flex gap-2">
             <button
               onClick={handleSavePost}
-              disabled={!formData.text_content.trim() && newPostMediaFiles.length === 0}
+              disabled={!editingPostId && !formData.text_content.trim() && newPostMediaFiles.length === 0}
               className="flex-1 flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               <Save className="w-4 h-4" />

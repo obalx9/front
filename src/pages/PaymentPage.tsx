@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { RichTextDisplay, isHtmlContent } from '../components/RichTextEditor';
 import TelegramLogin from '../components/TelegramLogin';
 import OAuthButtons from '../components/OAuthButtons';
 import KeyKursLogo from '../components/KeyKursLogo';
@@ -288,9 +289,9 @@ export default function PaymentPage() {
                 {course.title}
               </h1>
               {course.description && (
-                <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                  {course.description}
-                </p>
+                isHtmlContent(course.description)
+                  ? <RichTextDisplay html={course.description} className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed" />
+                  : <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">{course.description}</p>
               )}
             </div>
 
