@@ -66,13 +66,13 @@ function formatRub(kopecks: number | string) {
 
 function StatCard({ icon: Icon, label, value, sub, color }: { icon: any; label: string; value: string; sub?: string; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color}`}>
         <Icon className="w-5 h-5" />
       </div>
-      <p className="text-2xl font-bold text-gray-900 mb-0.5">{value}</p>
-      <p className="text-sm text-gray-500">{label}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      <p className="text-2xl font-bold text-gray-900 dark:text-white mb-0.5">{value}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+      {sub && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{sub}</p>}
     </div>
   );
 }
@@ -219,11 +219,11 @@ export default function SellerSalesTab() {
 
       {/* Withdrawal history */}
       {!loadingWithdrawals && withdrawals.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-900">Заявки на вывод</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-900 dark:text-white">Заявки на вывод</h3>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-700">
             {withdrawals.map(w => {
               const st = WITHDRAWAL_STATUS[w.status];
               const Icon = st.icon;
@@ -234,11 +234,11 @@ export default function SellerSalesTab() {
                     {st.label}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{formatRub(w.amount)}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{formatRub(w.amount)}</p>
                     <p className="text-xs text-gray-400">{new Date(w.created_at).toLocaleDateString('ru-RU')}</p>
                   </div>
                   {w.admin_note && (
-                    <p className="text-xs text-gray-500 max-w-[200px] truncate" title={w.admin_note}>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] truncate" title={w.admin_note}>
                       {w.admin_note}
                     </p>
                   )}
@@ -264,23 +264,23 @@ export default function SellerSalesTab() {
           </div>
 
           {stats.by_course && stats.by_course.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
               <button
                 onClick={() => setShowByCourse(p => !p)}
                 className="w-full flex items-center justify-between px-6 py-4 text-left"
               >
-                <span className="font-semibold text-gray-900">По курсам</span>
+                <span className="font-semibold text-gray-900 dark:text-white">По курсам</span>
                 {showByCourse ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
               </button>
               {showByCourse && (
-                <div className="border-t border-gray-100 divide-y divide-gray-50">
+                <div className="border-t border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-700">
                   {stats.by_course.map(c => (
                     <div key={c.id} className="flex items-center gap-4 px-6 py-3">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{c.title}</p>
+                        <p className="font-medium text-gray-900 dark:text-white truncate">{c.title}</p>
                         <p className="text-xs text-gray-400">{c.sales} продаж</p>
                       </div>
-                      <p className="font-semibold text-gray-900">{formatRub(c.revenue)}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">{formatRub(c.revenue)}</p>
                     </div>
                   ))}
                 </div>
@@ -291,12 +291,12 @@ export default function SellerSalesTab() {
       ) : null}
 
       {/* Orders */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <button
           onClick={() => setShowOrdersSection(p => !p)}
-          className="w-full flex items-center justify-between px-6 py-4 border-b border-gray-100 text-left"
+          className="w-full flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 text-left"
         >
-          <h3 className="font-semibold text-gray-900">История платежей</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white">История платежей</h3>
           <div className="flex items-center gap-3">
             <div className="flex gap-1" onClick={e => e.stopPropagation()}>
               {(['all', 'succeeded', 'pending', 'canceled'] as OrderStatusFilter[]).map(s => (
@@ -306,7 +306,7 @@ export default function SellerSalesTab() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     statusFilter === s
                       ? 'bg-teal-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   {s === 'all' ? 'Все' : STATUS_LABELS[s]?.label || s}
@@ -324,16 +324,16 @@ export default function SellerSalesTab() {
             </div>
           ) : orders.length === 0 ? (
             <div className="text-center py-12">
-              <ShoppingCart className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+              <ShoppingCart className="w-10 h-10 text-gray-200 dark:text-gray-600 mx-auto mb-3" />
               <p className="text-gray-400 text-sm">Платежей пока нет</p>
-              <p className="text-gray-300 text-xs mt-1">Включите оплату в настройках курса и поделитесь ссылкой</p>
+              <p className="text-gray-300 dark:text-gray-500 text-xs mt-1">Включите оплату в настройках курса и поделитесь ссылкой</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                    <tr className="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">
                       <th className="text-left px-6 py-3 font-medium">Дата</th>
                       <th className="text-left px-4 py-3 font-medium">Покупатель</th>
                       <th className="text-left px-4 py-3 font-medium">Курс</th>
@@ -342,18 +342,18 @@ export default function SellerSalesTab() {
                       <th className="text-center px-4 py-3 font-medium">Статус</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                     {orders.map(o => {
                       const buyerName = [o.buyer.first_name, o.buyer.last_name].filter(Boolean).join(' ') || o.buyer.telegram_username || o.buyer.email || '—';
                       const st = STATUS_LABELS[o.status] || { label: o.status, cls: 'bg-gray-100 text-gray-600' };
                       return (
-                        <tr key={o.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-3 text-gray-500 whitespace-nowrap">
+                        <tr key={o.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                          <td className="px-6 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                             {new Date(o.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                           </td>
-                          <td className="px-4 py-3 text-gray-900 max-w-[140px] truncate">{buyerName}</td>
-                          <td className="px-4 py-3 text-gray-700 max-w-[180px] truncate">{o.course.title}</td>
-                          <td className="px-4 py-3 text-right font-medium text-gray-700 whitespace-nowrap">{formatRub(o.amount)}</td>
+                          <td className="px-4 py-3 text-gray-900 dark:text-white max-w-[140px] truncate">{buyerName}</td>
+                          <td className="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-[180px] truncate">{o.course.title}</td>
+                          <td className="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatRub(o.amount)}</td>
                           <td className="px-4 py-3 text-right font-semibold text-green-600 whitespace-nowrap">{formatRub(o.seller_amount)}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span>
@@ -366,20 +366,20 @@ export default function SellerSalesTab() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-                  <p className="text-sm text-gray-500">Страница {page} из {totalPages} ({total} записей)</p>
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-700">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Страница {page} из {totalPages} ({total} записей)</p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page === 1}
-                      className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                      className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 dark:text-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       Назад
                     </button>
                     <button
                       onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}
-                      className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                      className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 dark:text-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       Вперёд
                     </button>
