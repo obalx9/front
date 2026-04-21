@@ -142,13 +142,14 @@ export default function PaymentPage() {
   };
 
   const handleApplyPromo = async () => {
-    if (!promoInput.trim() || !courseId || !user) return;
+    if (!promoInput.trim() || !courseId) return;
     setPromoValidating(true);
     setPromoError(null);
     setPromoResult(null);
     try {
       const data = await api.get<any>(
-        `/api/payments/promo/validate?code=${encodeURIComponent(promoInput.trim())}&course_id=${courseId}`
+        `/api/payments/promo/validate?code=${encodeURIComponent(promoInput.trim())}&course_id=${courseId}`,
+        { skipAuth: !user }
       );
       setPromoResult(data);
     } catch (err: any) {
@@ -424,7 +425,7 @@ export default function PaymentPage() {
               )}
 
               {/* Promo code input */}
-              {!enrolled && user && (
+              {!enrolled && (
                 <div className="mb-5">
                   {promoResult ? (
                     <div className="flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-xl px-4 py-3">
