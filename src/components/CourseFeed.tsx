@@ -779,6 +779,10 @@ export default function CourseFeed({
       filtered = filtered.filter(post => post.has_error);
     }
 
+    if (courseSettings?.reverse_post_order) {
+      filtered = [...filtered].reverse();
+    }
+
     setFilteredPosts(filtered);
 
     const VIDEO_EXT_RE = /\.(mp4|mov|avi|mkv|webm|m4v|3gp|flv|wmv)$/i;
@@ -801,7 +805,7 @@ export default function CourseFeed({
         };
       });
     setMediaItems(items);
-  }, [searchQuery, posts, showErrorsOnly, editable]);
+  }, [searchQuery, posts, showErrorsOnly, editable, courseSettings?.reverse_post_order]);
 
   const loadPosts = async () => {
     try {
